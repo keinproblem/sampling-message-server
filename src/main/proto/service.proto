@@ -1,0 +1,83 @@
+syntax = "proto3";
+option java_package = "de.dhbw.ravensburg.verteiltesysteme.server";
+option java_outer_classname = "SamplingMessageGrpcService";
+//option java_multiple_files = true;
+
+service SamplingMessage {
+
+    rpc createSamplingMessage (CreateSamplingMessageRequest) returns (CreateSamplingMessageResponse);
+    rpc writeSamplingMessage (WriteSamplingMessageRequest) returns (WriteSamplingMessageResponse);
+    rpc clearSamplingMessage (ClearSamplingMessageRequest) returns (ClearSamplingMessageResponse);
+    rpc readSamplingMessage (ReadSamplingMessageRequest) returns (ReadSamplingMessageResponse);
+    rpc getSamplingMessageStatus (GetSamplingMessageStatusRequest) returns (GetSamplingMessageStatusResponse);
+    rpc deleteSamplingMessage (DeleteSamplingMessageRequest) returns (DeleteSamplingMessageResponse);
+}
+
+// CREATE_SAMPLING_MESSAGE DTOs
+message CreateSamplingMessageRequest {
+    string messageName = 1;
+    int64 lifetimeInSec = 2;
+}
+
+message CreateSamplingMessageResponse {
+    StatusCode statusCode = 1;
+}
+
+// WRITE_SAMPLING_MESSAGE DTOs
+message WriteSamplingMessageRequest {
+    string messageName = 1;
+    string messageContent = 2;
+}
+
+message WriteSamplingMessageResponse {
+    StatusCode statusCode = 1;
+}
+
+// CLEAR_SAMPLING_MESSAGE DTOs
+message ClearSamplingMessageRequest {
+    string messageName = 1;
+}
+
+message ClearSamplingMessageResponse {
+    StatusCode statusCode = 1;
+}
+
+// READ_SAMPLING_MESSAGE DTOs
+message ReadSamplingMessageRequest {
+    string messageName = 1;
+}
+
+message ReadSamplingMessageResponse {
+    string messageContent = 1;
+    bool messageIsValid = 2;
+    StatusCode statusCode = 3;
+}
+
+// GET_SAMPLING_MESSAGE_STATUS DTOs
+message GetSamplingMessageStatusRequest {
+    string messageName = 1;
+}
+
+message GetSamplingMessageStatusResponse {
+    bool messageIsEmpty = 1;
+    bool messageIsValid = 2;
+    StatusCode statusCode = 3;
+}
+
+// DELETE_SAMPLING_MESSAGE_STATUS DTOs
+message DeleteSamplingMessageRequest {
+    string messageName = 1;
+}
+
+message DeleteSamplingMessageResponse {
+    StatusCode statusCode = 1;
+}
+
+// general purpose Operation Response Code enum
+enum StatusCode {
+    UNKNOWN_ERROR = 0;
+    SUCCESS = 1;
+    CONFLICT = 2;
+    NOT_FOUND = 3;
+    ILLEGAL_PARAMETER = 4;
+}
