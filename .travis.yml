@@ -1,12 +1,13 @@
 language: java
 jdk:
-  - oraclejdk8
+- oraclejdk8
 sudo: false
 script:
-  - mvn clean verify package
+- mvn clean verify package
 deploy:
   provider: releases
   api_key:
-    secure: "comming_soon"
-  file: 'target/sampling-message-server-0.1-jar-with-dependencies.jar'
-  skip_cleanup: true
+    secure: NkJUa5NRIn3ylBUZ/DbEemzVADS/DSh/PT1Ds+MxUCPdYFLEx+28Y+ikei0oEUX95R5VHaUZFonSlcIIdu4oPVrpKRwCY8U9Q7t35Tcmx2pin0qhN9RWAgT97nrmk2mDNnfFUiGpe3Zg2msY9J/EDx+U8UNin4wXzanuKkI16n2gxIwr8dfqO83kzZd9vUeMLosiParw+9kqZb60Nh2O5GhPcKXd6sQrgQwdDE9gtb5Hh/QUTtwJeutKisxBqNtHOr3YGas/GZRKv+F/22kyyqp9iWVTHvwRaX2kGthz0WvmGgf/CzC3kc68XLUrNejjoUcPp5qqQy1+1zj3TN8MjybePSQsQIPPCbPJO04WAlDMlFNYRUCxONge6bVI1yJf8ltgB0Uj19dUngfRxGI0Em8X47Tjx8UHvjPB/E2X+8exlK6nm1lH+PSYcF6EMecXT/PaoPdV48LJqv4SjmxDUFHvVhsUyEkUxTFZPvudvM/6nBoWtpXaglhpgKBggcPP+IkJqHp4xBFWxbdUqdc3RMSRXiCLPlfyRSD6NZ0DbAk8Aa2UpxZGVLRCPDTtmX6EN0vJ8B7Qa0rZudQKdtAJNO0UaMV0uxYf7v7WXjGRHykeF6HzR6Psceb8czZ4VE7JDOSZv1jNheM571zkGAfKX3pBSs2quKB7y6JdmOzQfuw=
+  file: target/sampling-message-server-0.1-jar-with-dependencies.jar
+  on:
+    repo: keinproblem/sampling-message-server
