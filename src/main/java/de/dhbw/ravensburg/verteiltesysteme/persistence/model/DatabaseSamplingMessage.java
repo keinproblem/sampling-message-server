@@ -1,7 +1,8 @@
-package model;
+package de.dhbw.ravensburg.verteiltesysteme.persistence.model;
 
 
 import lombok.*;
+import lombok.experimental.Accessors;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -11,7 +12,8 @@ import java.time.Instant;
 @ToString
 @EqualsAndHashCode
 @AllArgsConstructor
-public class SamplingMessage {
+@Accessors(chain = true)
+public class DatabaseSamplingMessage {
     private String messageName;
     private String messageContent;
     private Instant messageUpdateTimestamp;

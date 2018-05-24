@@ -1,10 +1,14 @@
 syntax = "proto3";
-option java_package = "de.dhbw.ravensburg.verteiltesysteme.server";
+option java_package = "de.dhbw.ravensburg.verteiltesysteme.de.dhbw.ravensburg.verteiltesysteme.rpc";
 option java_outer_classname = "SamplingMessageGrpcService";
 //option java_multiple_files = true;
 
-service SamplingMessage {
+/*
+    proto3 Service Definition
 
+    The SamplingMessage Service exposes multiple RPCs as complex functions performing operations on a dataset containing so called *sampling message* entries.
+*/
+service SamplingMessage {
     rpc createSamplingMessage (CreateSamplingMessageRequest) returns (CreateSamplingMessageResponse);
     rpc writeSamplingMessage (WriteSamplingMessageRequest) returns (WriteSamplingMessageResponse);
     rpc clearSamplingMessage (ClearSamplingMessageRequest) returns (ClearSamplingMessageResponse);
@@ -73,11 +77,15 @@ message DeleteSamplingMessageResponse {
     StatusCode statusCode = 1;
 }
 
-// general purpose Operation Response Code enum
+/*
+    General purpose operation result status code enum
+    Used as minimal information to transmit a RPC's result.
+*/
 enum StatusCode {
     UNKNOWN_ERROR = 0;
     SUCCESS = 1;
     CONFLICT = 2;
     NOT_FOUND = 3;
     ILLEGAL_PARAMETER = 4;
+    MESSAGE_COUNT_EXCEEDED = 5;
 }

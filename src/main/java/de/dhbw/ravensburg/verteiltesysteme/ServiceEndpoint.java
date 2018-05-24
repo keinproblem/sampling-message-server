@@ -1,0 +1,64 @@
+package de.dhbw.ravensburg.verteiltesysteme;
+
+import de.dhbw.ravensburg.verteiltesysteme.persistence.DatabaseAccessObjectImpl;
+import de.dhbw.ravensburg.verteiltesysteme.persistence.FakePersistence;
+import de.dhbw.ravensburg.verteiltesysteme.rpc.RpcService;
+import de.dhbw.ravensburg.verteiltesysteme.service.SamplingMessageServiceImpl;
+import io.grpc.*;
+import lombok.extern.slf4j.Slf4j;
+
+import java.io.IOException;
+import java.net.SocketAddress;
+
+@Slf4j
+public class ServiceEndpoint {
+    private final Server server;
+
+    //TODO; replace with ServerConfig
+    private final Integer port;
+
+    //TODO; supply the constructor with a ServerConfig object
+    ServiceEndpoint() {
+        log.info("Preparing Service Endpoint");
+        //TODO; remove env var parameterization
+        this.port = Integer.parseInt(System.getenv().getOrDefault("port", "8080"));
+
+        final RpcService rpcService = new RpcService(new SamplingMessageServiceImpl(new DatabaseAccessObjectImpl(new FakePersistence<>())));
+
+        this.server = ServerBuilder
+                .forPort(this.port)
+                .addService(rpcService)
+                .intercept(socketAddressLoggingServerInterceptor())
+                .build();
+    }
+
+    private static ServerInterceptor socketAddressLoggingServerInterceptor() {
+        return new ServerInterceptor() {
+            @Override
+            public <ReqT, RespT> ServerCall.Listener<ReqT> interceptCall(ServerCall<ReqT, RespT> serverCall, Metadata metadata, ServerCallHandler<ReqT, RespT> serverCallHandler) {
+                final SocketAddress socketAddress = serverCall.getAttributes().get(Grpc.TRANSPORT_ATTR_REMOTE_ADDR);
+                log.info(String.format("Receiving request from: %s", socketAddress == null ? "Unavailable" : socketAddress.toString()));
+                return serverCallHandler.startCall(serverCall, metadata);
+            }
+        };
+    }
+
+    public void init() {
+        try {
+            log.info("Starting Service Endpoint");
+            this.server.start();
+            log.info(String.format("Server listening on TCP port: %s", this.port));
+            this.server.awaitTermination();
+        } catch (IOException e) {
+            log.error(e.getMessage());
+        } catch (InterruptedException e) {
+            log.error(e.getMessage());
+        }
+    }
+
+    public void shutdown() {
+        log.info("Shutting down gRPC Server");
+        this.server.shutdownNow();
+        log.info("gRPC Server shut down.");
+    }
+}
