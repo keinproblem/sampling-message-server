@@ -3,7 +3,9 @@ package de.dhbw.ravensburg.verteiltesysteme;
 import de.dhbw.ravensburg.verteiltesysteme.persistence.DatabaseAccessObjectImpl;
 import de.dhbw.ravensburg.verteiltesysteme.persistence.FakePersistence;
 import de.dhbw.ravensburg.verteiltesysteme.rpc.RpcService;
+import de.dhbw.ravensburg.verteiltesysteme.service.ContractValidator;
 import de.dhbw.ravensburg.verteiltesysteme.service.SamplingMessageServiceImpl;
+import de.dhbw.ravensburg.verteiltesysteme.service.ServiceConfig;
 import io.grpc.*;
 import lombok.extern.slf4j.Slf4j;
 
@@ -13,20 +15,16 @@ import java.net.SocketAddress;
 @Slf4j
 public class ServiceEndpoint {
     private final Server server;
+    private final ServiceConfig serviceConfig;
 
-    //TODO; replace with ServerConfig
-    private final Integer port;
-
-    //TODO; supply the constructor with a ServerConfig object
-    ServiceEndpoint() {
+    ServiceEndpoint(final ServiceConfig serviceConfig) {
         log.info("Preparing Service Endpoint");
-        //TODO; remove env var parameterization
-        this.port = Integer.parseInt(System.getenv().getOrDefault("port", "8080"));
+        this.serviceConfig = serviceConfig;
 
-        final RpcService rpcService = new RpcService(new SamplingMessageServiceImpl(new DatabaseAccessObjectImpl(new FakePersistence<>())));
+        final RpcService rpcService = new RpcService(new SamplingMessageServiceImpl(new DatabaseAccessObjectImpl(new FakePersistence<>()), new ContractValidator(this.serviceConfig)));
 
         this.server = ServerBuilder
-                .forPort(this.port)
+                .forPort(this.serviceConfig.getServiceEndpointListeningPort())
                 .addService(rpcService)
                 .intercept(socketAddressLoggingServerInterceptor())
                 .build();
@@ -47,7 +45,7 @@ public class ServiceEndpoint {
         try {
             log.info("Starting Service Endpoint");
             this.server.start();
-            log.info(String.format("Server listening on TCP port: %s", this.port));
+            log.info(String.format("Server listening on TCP port: %s", this.serviceConfig.getServiceEndpointListeningPort()));
             this.server.awaitTermination();
         } catch (IOException e) {
             log.error(e.getMessage());
