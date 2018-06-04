@@ -21,5 +21,6 @@
     <modules>
         <module>sampling-message-server</module>
         <module>sampling-message-client</module>
+        <module>assembly</module>
     </modules>
 </project>

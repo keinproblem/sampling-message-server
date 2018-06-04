@@ -1,0 +1,20 @@
+<assembly xmlns="http://maven.apache.org/ASSEMBLY/2.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/ASSEMBLY/2.0.0 http://maven.apache.org/xsd/assembly-2.0.0.xsd">
+    <formats>
+        <format>zip</format>
+        <format>tar.gz</format>
+    </formats>
+    <files>
+        <file>
+            <source>../sampling-message-client/target/sampling-message-client-0.1-jar-with-dependencies.jar</source>
+            <outputDirectory>./</outputDirectory>
+            <destName>client.jar</destName>
+            <lineEnding>keep</lineEnding>
+        </file>
+        <file>
+            <source>../sampling-message-server/target/sampling-message-server-0.1-jar-with-dependencies.jar</source>
+            <outputDirectory>./</outputDirectory>
+            <destName>server.jar</destName>
+            <lineEnding>keep</lineEnding>
+        </file>
+    </files>
+</assembly>
