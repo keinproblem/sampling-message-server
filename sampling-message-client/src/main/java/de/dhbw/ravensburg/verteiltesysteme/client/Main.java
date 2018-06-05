@@ -12,6 +12,8 @@ public class Main {
 
     //TODO; implement Apache CLI https://stackoverflow.com/a/367714/876724
     public static void main(String[] args) throws InterruptedException {
+        //TODO; parametrize server addr & server tcp port
+
         ManagedChannelBuilder<?> managedChannelBuilder = ManagedChannelBuilder.forAddress("127.0.0.1", 8080).usePlaintext();
         ManagedChannel managedChannel = managedChannelBuilder.build();
         SamplingMessageGrpc.SamplingMessageStub samplingMessageStub = SamplingMessageGrpc.newStub(managedChannel);

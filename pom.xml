@@ -19,6 +19,7 @@
     </properties>
 
     <modules>
+        <module>sampling-message-proto</module>
         <module>sampling-message-server</module>
         <module>sampling-message-client</module>
         <module>assembly</module>

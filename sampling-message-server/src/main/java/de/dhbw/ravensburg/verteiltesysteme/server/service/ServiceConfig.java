@@ -8,10 +8,13 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
+import javax.enterprise.inject.Alternative;
+
 @Data
 @ToString
 @EqualsAndHashCode
 @AllArgsConstructor
+@Alternative
 public class ServiceConfig {
 
     public static final Integer DEFAULT_MAXIMUM_SAMPLING_MESSAGE_NAME_SIZE = 32;

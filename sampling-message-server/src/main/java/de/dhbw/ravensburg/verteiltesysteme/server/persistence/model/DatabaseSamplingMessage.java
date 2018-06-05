@@ -1,7 +1,10 @@
 package de.dhbw.ravensburg.verteiltesysteme.server.persistence.model;
 
 
-import lombok.*;
+import lombok.Builder;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 import lombok.experimental.Accessors;
 
 import java.time.Duration;
@@ -11,7 +14,6 @@ import java.time.Instant;
 @Builder
 @ToString
 @EqualsAndHashCode
-@AllArgsConstructor
 @Accessors(chain = true)
 public class DatabaseSamplingMessage {
     private String messageName;
