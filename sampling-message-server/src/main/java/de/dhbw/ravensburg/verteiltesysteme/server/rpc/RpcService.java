@@ -39,6 +39,8 @@ public class RpcService extends SamplingMessageGrpc.SamplingMessageImplBase {
     @Override
     public void createSamplingMessage(SamplingMessageGrpcService.CreateSamplingMessageRequest request,
                                       StreamObserver<SamplingMessageGrpcService.CreateSamplingMessageResponse> responseObserver) {
+        log.info(String.format("Received WriteSamplingMessageRequest for messageName: %s with lifetime in sec: %d", request.getMessageName(), request.getLifetimeInSec()));
+
         log.info("createSamplingMessage: " + request.getMessageName() + "\t" + request.getLifetimeInSec());
         final ServiceResult serviceResult = samplingMessageService.createSamplingMessage(request.getMessageName(), request.getLifetimeInSec());
         SamplingMessageGrpcService.CreateSamplingMessageResponse createSamplingMessageResponse = SamplingMessageGrpcService.CreateSamplingMessageResponse
@@ -53,7 +55,7 @@ public class RpcService extends SamplingMessageGrpc.SamplingMessageImplBase {
     @Override
     public void writeSamplingMessage(SamplingMessageGrpcService.WriteSamplingMessageRequest request,
                                      StreamObserver<SamplingMessageGrpcService.WriteSamplingMessageResponse> responseObserver) {
-        log.info("writeSamplingMessage: " + request.getMessageContent());
+        log.info(String.format("Received WriteSamplingMessageRequest for messageName: %s ", request.getMessageName()));
 
         final ServiceResult serviceResult = samplingMessageService.writeSamplingMessage(request.getMessageName(), request.getMessageContent());
         SamplingMessageGrpcService.WriteSamplingMessageResponse writeSamplingMessageResponse = SamplingMessageGrpcService.WriteSamplingMessageResponse
@@ -68,7 +70,8 @@ public class RpcService extends SamplingMessageGrpc.SamplingMessageImplBase {
     @Override
     public void clearSamplingMessage(SamplingMessageGrpcService.ClearSamplingMessageRequest request,
                                      StreamObserver<SamplingMessageGrpcService.ClearSamplingMessageResponse> responseObserver) {
-        log.info("clearSamplingMessage");
+        log.info(String.format("Received ClearSamplingMessageRequest for messageName: %s ", request.getMessageName()));
+
         final ServiceResult serviceResult = samplingMessageService.clearSamplingMessage(request.getMessageName());
         SamplingMessageGrpcService.ClearSamplingMessageResponse clearSamplingMessageResponse = SamplingMessageGrpcService.ClearSamplingMessageResponse
                 .newBuilder()
@@ -82,7 +85,7 @@ public class RpcService extends SamplingMessageGrpc.SamplingMessageImplBase {
     @Override
     public void readSamplingMessage(SamplingMessageGrpcService.ReadSamplingMessageRequest request,
                                     StreamObserver<SamplingMessageGrpcService.ReadSamplingMessageResponse> responseObserver) {
-        log.info("readSamplingMessage: " + request.getMessageName());
+        log.info(String.format("Received ReadSamplingMessageRequest for messageName: %s ", request.getMessageName()));
 
         final ServiceResult<SamplingMessage> samplingMessageServiceResult = samplingMessageService.readSamplingMessage(request.getMessageName());
         final SamplingMessageGrpcService.StatusCode statusCode = fromServiceResultStatus(samplingMessageServiceResult.getStatus());
@@ -109,7 +112,7 @@ public class RpcService extends SamplingMessageGrpc.SamplingMessageImplBase {
     @Override
     public void getSamplingMessageStatus(SamplingMessageGrpcService.GetSamplingMessageStatusRequest request,
                                          StreamObserver<SamplingMessageGrpcService.GetSamplingMessageStatusResponse> responseObserver) {
-        log.info("getSamplingMessageStatus");
+        log.info(String.format("Received GetSamplingMessageStatusRequest for messageName: %s ", request.getMessageName()));
 
         final ServiceResult<SamplingMessageStatus> samplingMessageServiceResult = samplingMessageService.getSamplingMessageStatus(request.getMessageName());
         final SamplingMessageGrpcService.StatusCode statusCode = fromServiceResultStatus(samplingMessageServiceResult.getStatus());
@@ -136,7 +139,7 @@ public class RpcService extends SamplingMessageGrpc.SamplingMessageImplBase {
     @Override
     public void deleteSamplingMessage(SamplingMessageGrpcService.DeleteSamplingMessageRequest request,
                                       StreamObserver<SamplingMessageGrpcService.DeleteSamplingMessageResponse> responseObserver) {
-        log.info("deleteSamplingMessage");
+        log.info(String.format("Received DeleteSamplingMessageRequest for messageName: %s ", request.getMessageName()));
 
         final ServiceResult serviceResult = samplingMessageService.deleteSamplingMessage(request.getMessageName());
         SamplingMessageGrpcService.DeleteSamplingMessageResponse deleteSamplingMessageResponse = SamplingMessageGrpcService.DeleteSamplingMessageResponse

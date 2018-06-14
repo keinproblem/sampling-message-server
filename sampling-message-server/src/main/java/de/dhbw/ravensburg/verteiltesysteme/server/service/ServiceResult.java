@@ -21,4 +21,12 @@ public class ServiceResult<T> {
     public enum Status {
         SUCCESS, NOT_FOUND, ALREADY_EXISTS, MSG_COUNT_EXCEEDED, ILLEGAL_PARAMETER
     }
+
+    @Override
+    public String toString() {
+        return "ServiceResult{" +
+                "status=" + status.name() +
+                ", resultItem=" + (resultItem.isPresent() ? resultItem.get().toString() : null) +
+                '}';
+    }
 }

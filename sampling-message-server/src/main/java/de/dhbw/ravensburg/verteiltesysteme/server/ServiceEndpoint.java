@@ -1,9 +1,11 @@
 package de.dhbw.ravensburg.verteiltesysteme.server;
 
+import de.dhbw.ravensburg.verteiltesysteme.server.persistence.DatabaseAccessObject;
 import de.dhbw.ravensburg.verteiltesysteme.server.persistence.DatabaseAccessObjectImpl;
 import de.dhbw.ravensburg.verteiltesysteme.server.persistence.FakePersistence;
 import de.dhbw.ravensburg.verteiltesysteme.server.rpc.RpcService;
 import de.dhbw.ravensburg.verteiltesysteme.server.service.ContractValidator;
+import de.dhbw.ravensburg.verteiltesysteme.server.service.SamplingMessageService;
 import de.dhbw.ravensburg.verteiltesysteme.server.service.SamplingMessageServiceImpl;
 import de.dhbw.ravensburg.verteiltesysteme.server.service.ServiceConfig;
 import io.grpc.*;
@@ -12,16 +14,31 @@ import lombok.extern.slf4j.Slf4j;
 import java.io.IOException;
 import java.net.SocketAddress;
 
+/**
+ * This class represents a high level application service.
+ * It will initialize a gRPC server with a respective gRPC service implementation.
+ */
 @Slf4j
 public class ServiceEndpoint {
     private final Server server;
     private final ServiceConfig serviceConfig;
 
-    ServiceEndpoint(final ServiceConfig serviceConfig) {
+
+    /**
+     * Instantiate a ServiceEndpoint object with the given {@see service.ServiceConfig}
+     * Prepares the gRPC server to be initialized afterwards.
+     *
+     * @param serviceConfig Basic service configuration
+     */
+    public ServiceEndpoint(final ServiceConfig serviceConfig) {
         log.info("Preparing Service Endpoint");
         this.serviceConfig = serviceConfig;
 
-        final RpcService rpcService = new RpcService(new SamplingMessageServiceImpl(new DatabaseAccessObjectImpl(new FakePersistence<>()), new ContractValidator(this.serviceConfig)));
+        final DatabaseAccessObject databaseAccessObject = new DatabaseAccessObjectImpl(new FakePersistence<>());
+        final ContractValidator contractValidator = new ContractValidator(this.serviceConfig);
+        final SamplingMessageService samplingMessageService = new SamplingMessageServiceImpl(databaseAccessObject, contractValidator);
+
+        final RpcService rpcService = new RpcService(samplingMessageService);
 
         this.server = ServerBuilder
                 .forPort(this.serviceConfig.getServiceEndpointListeningPort())
@@ -41,19 +58,27 @@ public class ServiceEndpoint {
         };
     }
 
+    /**
+     * Initialize the ServiceEndpoint after instantiation.
+     */
     public void init() {
         try {
             log.info("Starting Service Endpoint");
             this.server.start();
             log.info(String.format("Server listening on TCP port: %s", this.serviceConfig.getServiceEndpointListeningPort()));
-            this.server.awaitTermination();
         } catch (IOException e) {
             log.error(e.getMessage());
-        } catch (InterruptedException e) {
-            log.error(e.getMessage());
+            this.shutdown();
         }
     }
 
+    public void awaitTermination() throws InterruptedException {
+        this.server.awaitTermination();
+    }
+
+    /**
+     * Perform graceful shutdown of the endpoint.
+     */
     public void shutdown() {
         log.info("Shutting down gRPC Server");
         this.server.shutdownNow();

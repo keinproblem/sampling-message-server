@@ -1,5 +1,6 @@
 package de.dhbw.ravensburg.verteiltesysteme.server.service;
 
+import lombok.Data;
 import lombok.NonNull;
 
 import java.time.Duration;
@@ -10,10 +11,11 @@ import java.time.Instant;
  * Utilizes ServiceConfig
  * Provides validation patterns for incoming transit data
  */
+@Data
 public class ContractValidator {
     private ServiceConfig serviceConfig;
 
-    public ContractValidator(ServiceConfig serviceConfig) {
+    public ContractValidator(final ServiceConfig serviceConfig) {
         this.serviceConfig = serviceConfig;
     }
 
@@ -26,10 +28,15 @@ public class ContractValidator {
     }
 
     public boolean isMessageCountExceeded(final Long totalMessageCount) {
-        return totalMessageCount >= ServiceConfig.DEFAULT_MAXIMUM_SAMPLING_MESSAGE_COUNT;
+        return totalMessageCount >= serviceConfig.getMaximumSamplingMessageContentSize();
     }
 
     public boolean isValid(@NonNull final Instant creationTime, @NonNull final Duration lifetime) {
-        return Instant.now().isBefore(creationTime.plus(lifetime));
+        //TODO; prevent overflow
+        return Instant.now().minus(lifetime).isBefore(creationTime.plus(lifetime));
+    }
+
+    public int getCurrentSamplingMaximumMessageCount() {
+        return this.serviceConfig.getMaximumSamplingMessageCount();
     }
 }

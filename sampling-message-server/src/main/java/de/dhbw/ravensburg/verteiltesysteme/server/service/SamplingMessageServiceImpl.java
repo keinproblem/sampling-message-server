@@ -17,7 +17,7 @@ public class SamplingMessageServiceImpl implements SamplingMessageService {
     private final DatabaseAccessObject databaseAccessObject;
     private final ContractValidator contractValidator;
 
-    public SamplingMessageServiceImpl(final DatabaseAccessObject databaseAccessObject, final ContractValidator contractValidator) {
+    public SamplingMessageServiceImpl(@NonNull final DatabaseAccessObject databaseAccessObject, @NonNull final ContractValidator contractValidator) {
         this.databaseAccessObject = databaseAccessObject;
         this.contractValidator = contractValidator;
     }
@@ -25,6 +25,8 @@ public class SamplingMessageServiceImpl implements SamplingMessageService {
 
     @Override
     public ServiceResult createSamplingMessage(@NonNull final String messageName, @NonNull final Long lifetimeInSec) {
+        log.info(String.format("Creating SamplingMessage for messageName: %s ", messageName));
+
         if (contractValidator.isInvalidMessageName(messageName)) {
             log.info(String.format("Invalid messageName provided: %s", messageName));
             return new ServiceResult(ServiceResult.Status.ILLEGAL_PARAMETER);
@@ -32,10 +34,11 @@ public class SamplingMessageServiceImpl implements SamplingMessageService {
 
         final long totalMessageCount = databaseAccessObject.getTotalMessageCount();
         if (contractValidator.isMessageCountExceeded(totalMessageCount)) {
-            log.info(String.format("Exceeded Number of Sampling Messages currently holding %s maximum is %s", totalMessageCount, ServiceConfig.DEFAULT_MAXIMUM_SAMPLING_MESSAGE_COUNT));
+            log.info(String.format("Exceeded Number of Sampling Messages currently holding %d maximum is %d", totalMessageCount, contractValidator.getCurrentSamplingMaximumMessageCount()));
             return new ServiceResult(ServiceResult.Status.MSG_COUNT_EXCEEDED);
 
         }
+
         final DatabaseSamplingMessage databaseSamplingMessage = DatabaseSamplingMessage
                 .builder()
                 .messageContent("")
@@ -48,16 +51,18 @@ public class SamplingMessageServiceImpl implements SamplingMessageService {
         if (databaseAccessObject.createSamplingMessage(messageName, databaseSamplingMessage)) {
             serviceResult = new ServiceResult(ServiceResult.Status.SUCCESS);
         } else {
-            log.info(String.format("Sampling Message with messageName: %s already exists.", messageName));
+            log.info(String.format("SamplingMessage with messageName: %s already exists.", messageName));
             serviceResult = new ServiceResult(ServiceResult.Status.ALREADY_EXISTS);
 
         }
-
+        log.info(String.format("Creating SamplingMessage result: %s", serviceResult.toString()));
         return serviceResult;
     }
 
     @Override
     public ServiceResult writeSamplingMessage(@NonNull final String messageName, @NonNull final String messageContent) {
+        log.info(String.format("Writing SamplingMessage for messageName: %s ", messageName));
+
         if (contractValidator.isInvalidMessageName(messageName)) {
             log.info(String.format("Invalid messageName provided: %s", messageName));
             return new ServiceResult(ServiceResult.Status.ILLEGAL_PARAMETER);
@@ -75,12 +80,15 @@ public class SamplingMessageServiceImpl implements SamplingMessageService {
             serviceResult = new ServiceResult(ServiceResult.Status.NOT_FOUND);
 
         }
+        log.info(String.format("Writing SamplingMessage result: %s", serviceResult.toString()));
 
         return serviceResult;
     }
 
     @Override
     public ServiceResult clearSamplingMessage(@NonNull final String messageName) {
+        log.info(String.format("Clearing SamplingMessage for messageName: %s ", messageName));
+
         if (contractValidator.isInvalidMessageName(messageName)) {
             log.info(String.format("Invalid messageName provided: %s", messageName));
             return new ServiceResult(ServiceResult.Status.ILLEGAL_PARAMETER);
@@ -98,12 +106,15 @@ public class SamplingMessageServiceImpl implements SamplingMessageService {
             serviceResult = new ServiceResult(ServiceResult.Status.NOT_FOUND);
 
         }
+        log.info(String.format("Clearing SamplingMessage result: %s", serviceResult.toString()));
 
         return serviceResult;
     }
 
     @Override
     public ServiceResult<SamplingMessage> readSamplingMessage(@NonNull final String messageName) {
+        log.info(String.format("Reading SamplingMessage for messageName: %s ", messageName));
+
         if (contractValidator.isInvalidMessageName(messageName)) {
             log.info(String.format("Invalid messageName provided: %s", messageName));
             return new ServiceResult<>(Optional.empty(), ServiceResult.Status.ILLEGAL_PARAMETER);
@@ -123,13 +134,15 @@ public class SamplingMessageServiceImpl implements SamplingMessageService {
         } else {
             log.info(String.format("Sampling Message with messageName: %s not found.", messageName));
             serviceResult = new ServiceResult<>(Optional.empty(), ServiceResult.Status.NOT_FOUND);
-
         }
+        log.info(String.format("Reading SamplingMessage result: %s", serviceResult.toString()));
         return serviceResult;
     }
 
     @Override
     public ServiceResult<SamplingMessageStatus> getSamplingMessageStatus(@NonNull final String messageName) {
+        log.info(String.format("Getting SamplingMessageStatus for messageName: %s ", messageName));
+
         if (contractValidator.isInvalidMessageName(messageName)) {
             log.info(String.format("Invalid messageName provided: %s", messageName));
             return new ServiceResult<>(Optional.empty(), ServiceResult.Status.ILLEGAL_PARAMETER);
@@ -150,11 +163,15 @@ public class SamplingMessageServiceImpl implements SamplingMessageService {
             serviceResult = new ServiceResult<>(Optional.empty(), ServiceResult.Status.NOT_FOUND);
 
         }
+        log.info(String.format("Getting SamplingMessage result: %s", serviceResult.toString()));
+
         return serviceResult;
     }
 
     @Override
     public ServiceResult deleteSamplingMessage(@NonNull final String messageName) {
+        log.info(String.format("Deleting SamplingMessage for messageName: %s ", messageName));
+
         if (contractValidator.isInvalidMessageName(messageName)) {
             log.info(String.format("Invalid messageName provided: %s", messageName));
             return new ServiceResult<>(Optional.empty(), ServiceResult.Status.ILLEGAL_PARAMETER);
@@ -165,6 +182,7 @@ public class SamplingMessageServiceImpl implements SamplingMessageService {
         } else {
             serviceResult = new ServiceResult(ServiceResult.Status.NOT_FOUND);
         }
+        log.info(String.format("Deleting SamplingMessage result: %s", serviceResult.toString()));
         return serviceResult;
     }
 
