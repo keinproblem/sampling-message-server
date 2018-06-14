@@ -59,7 +59,7 @@ public class CommandLineClient {
                 .build());
     }
 
-    public void run(String[] args) throws Exception {
+    public void run(String[] args) {
         CommandLineParser commandLineParser = new DefaultParser();
         helpFormatter = new HelpFormatter();
         CommandLine commandLine;
@@ -198,7 +198,8 @@ public class CommandLineClient {
 
 
     private void exitWithError(String errorMessage) {
-        System.out.println(errorMessage);
+        log.debug("ParsingError: ", errorMessage);
+        log.error(errorMessage);
         helpFormatter.printHelp("sampling-message-client", options);
         System.exit(1);
     }

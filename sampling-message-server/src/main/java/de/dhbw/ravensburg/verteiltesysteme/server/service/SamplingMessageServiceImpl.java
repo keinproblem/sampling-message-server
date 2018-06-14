@@ -1,13 +1,7 @@
 package de.dhbw.ravensburg.verteiltesysteme.server.service;
 
 import de.dhbw.ravensburg.verteiltesysteme.server.persistence.DatabaseAccessObject;
-import de.dhbw.ravensburg.verteiltesysteme.server.persistence.exception.DatabaseSamplingMessageAlreadyExistsException;
-import de.dhbw.ravensburg.verteiltesysteme.server.persistence.exception.DatabaseSamplingMessageNotFoundException;
 import de.dhbw.ravensburg.verteiltesysteme.server.persistence.model.DatabaseSamplingMessage;
-import de.dhbw.ravensburg.verteiltesysteme.server.service.exception.IllegalParameterException;
-import de.dhbw.ravensburg.verteiltesysteme.server.service.exception.SamplingMessageAlreadyExistsException;
-import de.dhbw.ravensburg.verteiltesysteme.server.service.exception.SamplingMessageCountExceededException;
-import de.dhbw.ravensburg.verteiltesysteme.server.service.exception.SamplingMessageNotFoundException;
 import de.dhbw.ravensburg.verteiltesysteme.server.service.model.SamplingMessage;
 import de.dhbw.ravensburg.verteiltesysteme.server.service.model.SamplingMessageStatus;
 import lombok.NonNull;
@@ -15,6 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.time.Duration;
 import java.time.Instant;
+import java.util.Optional;
 
 @Slf4j
 public class SamplingMessageServiceImpl implements SamplingMessageService {
@@ -28,16 +23,19 @@ public class SamplingMessageServiceImpl implements SamplingMessageService {
     }
 
 
-
     @Override
-    public void createSamplingMessage(@NonNull final String messageName, @NonNull final Long lifetimeInSec) throws SamplingMessageCountExceededException, SamplingMessageAlreadyExistsException, IllegalParameterException {
-        if (contractValidator.isInvalidMessageName(messageName))
-            throw new IllegalParameterException(String.format("Invalid messageName provided: %s", messageName));
+    public ServiceResult createSamplingMessage(@NonNull final String messageName, @NonNull final Long lifetimeInSec) {
+        if (contractValidator.isInvalidMessageName(messageName)) {
+            log.info(String.format("Invalid messageName provided: %s", messageName));
+            return new ServiceResult(ServiceResult.Status.ILLEGAL_PARAMETER);
+        }
 
         final long totalMessageCount = databaseAccessObject.getTotalMessageCount();
-        if (contractValidator.isMessageCountExceeded(totalMessageCount))
-            throw new SamplingMessageCountExceededException(String.format("Exceeded Number of Sampling Messages currently holding %s maximum is %s", totalMessageCount, ServiceConfig.DEFAULT_MAXIMUM_SAMPLING_MESSAGE_COUNT));
+        if (contractValidator.isMessageCountExceeded(totalMessageCount)) {
+            log.info(String.format("Exceeded Number of Sampling Messages currently holding %s maximum is %s", totalMessageCount, ServiceConfig.DEFAULT_MAXIMUM_SAMPLING_MESSAGE_COUNT));
+            return new ServiceResult(ServiceResult.Status.MSG_COUNT_EXCEEDED);
 
+        }
         final DatabaseSamplingMessage databaseSamplingMessage = DatabaseSamplingMessage
                 .builder()
                 .messageContent("")
@@ -46,97 +44,128 @@ public class SamplingMessageServiceImpl implements SamplingMessageService {
                 .messageLifetimeInSec(Duration.ofSeconds(lifetimeInSec))
                 .build();
 
-        try {
-            databaseAccessObject.createSamplingMessage(messageName, databaseSamplingMessage);
-        } catch (DatabaseSamplingMessageAlreadyExistsException e) {
-            throw new SamplingMessageAlreadyExistsException(e);
+        final ServiceResult serviceResult;
+        if (databaseAccessObject.createSamplingMessage(messageName, databaseSamplingMessage)) {
+            serviceResult = new ServiceResult(ServiceResult.Status.SUCCESS);
+        } else {
+            log.info(String.format("Sampling Message with messageName: %s already exists.", messageName));
+            serviceResult = new ServiceResult(ServiceResult.Status.ALREADY_EXISTS);
+
         }
 
+        return serviceResult;
     }
 
     @Override
-    public void writeSamplingMessage(@NonNull final String messageName, @NonNull final String messageContent) throws SamplingMessageNotFoundException, IllegalParameterException {
-        if (contractValidator.isInvalidMessageName(messageName))
-            throw new IllegalParameterException(String.format("Invalid messageName provided: %s", messageName));
-
-        if (contractValidator.isInvalidMessageContent(messageContent))
-            throw new IllegalParameterException(String.format("Invalid messageContent provided: %s", messageContent));
-
-        try {
-            databaseAccessObject.writeSamplingMessageContentAndTimestamp(messageName, messageContent, Instant.now());
-        } catch (DatabaseSamplingMessageNotFoundException e) {
-            throw new SamplingMessageNotFoundException(e);
+    public ServiceResult writeSamplingMessage(@NonNull final String messageName, @NonNull final String messageContent) {
+        if (contractValidator.isInvalidMessageName(messageName)) {
+            log.info(String.format("Invalid messageName provided: %s", messageName));
+            return new ServiceResult(ServiceResult.Status.ILLEGAL_PARAMETER);
         }
+        if (contractValidator.isInvalidMessageContent(messageContent)) {
+            log.info(String.format("Invalid messageContent provided: %s", messageContent));
+            return new ServiceResult(ServiceResult.Status.ILLEGAL_PARAMETER);
+        }
+
+        final ServiceResult serviceResult;
+        if (databaseAccessObject.writeSamplingMessageContentAndTimestamp(messageName, messageContent, Instant.now())) {
+            serviceResult = new ServiceResult(ServiceResult.Status.SUCCESS);
+        } else {
+            log.info(String.format("Sampling Message with messageName: %s not found.", messageName));
+            serviceResult = new ServiceResult(ServiceResult.Status.NOT_FOUND);
+
+        }
+
+        return serviceResult;
     }
 
     @Override
-    public void clearSamplingMessage(@NonNull final String messageName) throws SamplingMessageNotFoundException, IllegalParameterException {
-        if (contractValidator.isInvalidMessageName(messageName))
-            throw new IllegalParameterException(String.format("Invalid messageName provided: %s", messageName));
-
-        final DatabaseSamplingMessage databaseSamplingMessage;
-        try {
-            databaseSamplingMessage = databaseAccessObject.getSamplingMessage(messageName);
-        } catch (DatabaseSamplingMessageNotFoundException e) {
-            throw new SamplingMessageNotFoundException(e);
+    public ServiceResult clearSamplingMessage(@NonNull final String messageName) {
+        if (contractValidator.isInvalidMessageName(messageName)) {
+            log.info(String.format("Invalid messageName provided: %s", messageName));
+            return new ServiceResult(ServiceResult.Status.ILLEGAL_PARAMETER);
         }
 
-        databaseSamplingMessage.setMessageContent("");
-        databaseSamplingMessage.setMessageLifetimeInSec(Duration.ofNanos(0));
+        final ServiceResult serviceResult;
+        Optional<DatabaseSamplingMessage> optionalDatabaseSamplingMessage = databaseAccessObject.getSamplingMessage(messageName);
+        if (optionalDatabaseSamplingMessage.isPresent()) {
+            final DatabaseSamplingMessage databaseSamplingMessage = optionalDatabaseSamplingMessage.get();
+            databaseSamplingMessage.setMessageContent("");
+            databaseSamplingMessage.setMessageLifetimeInSec(Duration.ofNanos(0));
+            serviceResult = new ServiceResult(ServiceResult.Status.SUCCESS);
+        } else {
+            log.info(String.format("Sampling Message with messageName: %s not found.", messageName));
+            serviceResult = new ServiceResult(ServiceResult.Status.NOT_FOUND);
 
+        }
+
+        return serviceResult;
     }
 
     @Override
-    public SamplingMessage readSamplingMessage(@NonNull final String messageName) throws SamplingMessageNotFoundException, IllegalParameterException {
-        if (contractValidator.isInvalidMessageName(messageName))
-            throw new IllegalParameterException(String.format("Invalid messageName provided: %s", messageName));
-
-        final DatabaseSamplingMessage databaseSamplingMessage;
-        try {
-            databaseSamplingMessage = databaseAccessObject.getSamplingMessage(messageName);
-        } catch (DatabaseSamplingMessageNotFoundException e) {
-            throw new SamplingMessageNotFoundException(e);
+    public ServiceResult<SamplingMessage> readSamplingMessage(@NonNull final String messageName) {
+        if (contractValidator.isInvalidMessageName(messageName)) {
+            log.info(String.format("Invalid messageName provided: %s", messageName));
+            return new ServiceResult<>(Optional.empty(), ServiceResult.Status.ILLEGAL_PARAMETER);
         }
 
-        return SamplingMessage
-                .builder()
-                .messageContent(databaseSamplingMessage.getMessageContent())
-                .messageName(databaseSamplingMessage.getMessageName())
-                .isValid(contractValidator.isValid(databaseSamplingMessage.getMessageUpdateTimestamp(), databaseSamplingMessage.getMessageLifetimeInSec()))
-                .build();
+        final ServiceResult<SamplingMessage> serviceResult;
+        Optional<DatabaseSamplingMessage> optionalDatabaseSamplingMessage = databaseAccessObject.getSamplingMessage(messageName);
+        if (optionalDatabaseSamplingMessage.isPresent()) {
+            final DatabaseSamplingMessage databaseSamplingMessage = optionalDatabaseSamplingMessage.get();
+            final SamplingMessage samplingMessage = SamplingMessage
+                    .builder()
+                    .messageContent(databaseSamplingMessage.getMessageContent())
+                    .messageName(databaseSamplingMessage.getMessageName())
+                    .isValid(contractValidator.isValid(databaseSamplingMessage.getMessageUpdateTimestamp(), databaseSamplingMessage.getMessageLifetimeInSec()))
+                    .build();
+            serviceResult = new ServiceResult<>(Optional.of(samplingMessage), ServiceResult.Status.SUCCESS);
+        } else {
+            log.info(String.format("Sampling Message with messageName: %s not found.", messageName));
+            serviceResult = new ServiceResult<>(Optional.empty(), ServiceResult.Status.NOT_FOUND);
+
+        }
+        return serviceResult;
     }
 
     @Override
-    public SamplingMessageStatus getSamplingMessageStatus(@NonNull final String messageName) throws SamplingMessageNotFoundException, IllegalParameterException {
-        if (contractValidator.isInvalidMessageName(messageName))
-            throw new IllegalParameterException(String.format("Invalid messageName provided: %s", messageName));
-
-
-        final DatabaseSamplingMessage databaseSamplingMessage;
-        try {
-            databaseSamplingMessage = databaseAccessObject.getSamplingMessage(messageName);
-        } catch (DatabaseSamplingMessageNotFoundException e) {
-            throw new SamplingMessageNotFoundException(e);
+    public ServiceResult<SamplingMessageStatus> getSamplingMessageStatus(@NonNull final String messageName) {
+        if (contractValidator.isInvalidMessageName(messageName)) {
+            log.info(String.format("Invalid messageName provided: %s", messageName));
+            return new ServiceResult<>(Optional.empty(), ServiceResult.Status.ILLEGAL_PARAMETER);
         }
 
-        return SamplingMessageStatus
-                .builder()
-                .isEmpty(databaseSamplingMessage.getMessageContent().isEmpty())
-                .isValid(contractValidator.isValid(databaseSamplingMessage.getMessageUpdateTimestamp(), databaseSamplingMessage.getMessageLifetimeInSec()))
-                .build();
+        final ServiceResult<SamplingMessageStatus> serviceResult;
+        Optional<DatabaseSamplingMessage> optionalDatabaseSamplingMessage = databaseAccessObject.getSamplingMessage(messageName);
+        if (optionalDatabaseSamplingMessage.isPresent()) {
+            final DatabaseSamplingMessage databaseSamplingMessage = optionalDatabaseSamplingMessage.get();
+            final SamplingMessageStatus samplingMessageStatus = SamplingMessageStatus
+                    .builder()
+                    .isEmpty(databaseSamplingMessage.getMessageContent().isEmpty())
+                    .isValid(contractValidator.isValid(databaseSamplingMessage.getMessageUpdateTimestamp(), databaseSamplingMessage.getMessageLifetimeInSec()))
+                    .build();
+            serviceResult = new ServiceResult<>(Optional.of(samplingMessageStatus), ServiceResult.Status.SUCCESS);
+        } else {
+            log.info(String.format("Sampling Message with messageName: %s not found.", messageName));
+            serviceResult = new ServiceResult<>(Optional.empty(), ServiceResult.Status.NOT_FOUND);
 
+        }
+        return serviceResult;
     }
 
     @Override
-    public void deleteSamplingMessage(@NonNull final String messageName) throws SamplingMessageNotFoundException, IllegalParameterException {
-        if (contractValidator.isInvalidMessageName(messageName))
-            throw new IllegalParameterException(String.format("Invalid messageName provided: %s", messageName));
-
-        try {
-            databaseAccessObject.deleteSamplingMessage(messageName);
-        } catch (DatabaseSamplingMessageNotFoundException e) {
-            throw new SamplingMessageNotFoundException(e);
+    public ServiceResult deleteSamplingMessage(@NonNull final String messageName) {
+        if (contractValidator.isInvalidMessageName(messageName)) {
+            log.info(String.format("Invalid messageName provided: %s", messageName));
+            return new ServiceResult<>(Optional.empty(), ServiceResult.Status.ILLEGAL_PARAMETER);
         }
+        final ServiceResult serviceResult;
+        if (databaseAccessObject.deleteSamplingMessage(messageName)) {
+            serviceResult = new ServiceResult(ServiceResult.Status.SUCCESS);
+        } else {
+            serviceResult = new ServiceResult(ServiceResult.Status.NOT_FOUND);
+        }
+        return serviceResult;
     }
 
 }

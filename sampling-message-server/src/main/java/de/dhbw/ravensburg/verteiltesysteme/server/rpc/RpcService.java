@@ -3,10 +3,7 @@ package de.dhbw.ravensburg.verteiltesysteme.server.rpc;
 import de.dhbw.ravensburg.verteiltesysteme.de.dhbw.ravensburg.verteiltesysteme.rpc.SamplingMessageGrpc;
 import de.dhbw.ravensburg.verteiltesysteme.de.dhbw.ravensburg.verteiltesysteme.rpc.SamplingMessageGrpcService;
 import de.dhbw.ravensburg.verteiltesysteme.server.service.SamplingMessageService;
-import de.dhbw.ravensburg.verteiltesysteme.server.service.exception.IllegalParameterException;
-import de.dhbw.ravensburg.verteiltesysteme.server.service.exception.SamplingMessageAlreadyExistsException;
-import de.dhbw.ravensburg.verteiltesysteme.server.service.exception.SamplingMessageCountExceededException;
-import de.dhbw.ravensburg.verteiltesysteme.server.service.exception.SamplingMessageNotFoundException;
+import de.dhbw.ravensburg.verteiltesysteme.server.service.ServiceResult;
 import de.dhbw.ravensburg.verteiltesysteme.server.service.model.SamplingMessage;
 import de.dhbw.ravensburg.verteiltesysteme.server.service.model.SamplingMessageStatus;
 import io.grpc.stub.StreamObserver;
@@ -22,34 +19,33 @@ public class RpcService extends SamplingMessageGrpc.SamplingMessageImplBase {
     }
 
 
+    private static SamplingMessageGrpcService.StatusCode fromServiceResultStatus(final ServiceResult.Status status) {
+        switch (status) {
+            case SUCCESS:
+                return SamplingMessageGrpcService.StatusCode.SUCCESS;
+            case NOT_FOUND:
+                return SamplingMessageGrpcService.StatusCode.NOT_FOUND;
+            case ALREADY_EXISTS:
+                return SamplingMessageGrpcService.StatusCode.CONFLICT;
+            case ILLEGAL_PARAMETER:
+                return SamplingMessageGrpcService.StatusCode.ILLEGAL_PARAMETER;
+            case MSG_COUNT_EXCEEDED:
+                return SamplingMessageGrpcService.StatusCode.MESSAGE_COUNT_EXCEEDED;
+            default:
+                return SamplingMessageGrpcService.StatusCode.UNKNOWN_ERROR;
+        }
+    }
+
     @Override
     public void createSamplingMessage(SamplingMessageGrpcService.CreateSamplingMessageRequest request,
                                       StreamObserver<SamplingMessageGrpcService.CreateSamplingMessageResponse> responseObserver) {
         log.info("createSamplingMessage: " + request.getMessageName() + "\t" + request.getLifetimeInSec());
-        SamplingMessageGrpcService.CreateSamplingMessageResponse createSamplingMessageResponse;
-        try {
-            samplingMessageService.createSamplingMessage(request.getMessageName(), request.getLifetimeInSec());
-            createSamplingMessageResponse = SamplingMessageGrpcService.CreateSamplingMessageResponse
-                    .newBuilder()
-                    .setStatusCode(SamplingMessageGrpcService.StatusCode.SUCCESS)
-                    .build();
-        } catch (SamplingMessageAlreadyExistsException e) {
-            log.info(e.getMessage());
-            createSamplingMessageResponse = SamplingMessageGrpcService.CreateSamplingMessageResponse
-                    .newBuilder()
-                    .setStatusCode(SamplingMessageGrpcService.StatusCode.CONFLICT)
-                    .build();
-        } catch (IllegalParameterException e) {
-            createSamplingMessageResponse = SamplingMessageGrpcService.CreateSamplingMessageResponse
-                    .newBuilder()
-                    .setStatusCode(SamplingMessageGrpcService.StatusCode.ILLEGAL_PARAMETER)
-                    .build();
-        } catch (SamplingMessageCountExceededException e) {
-            createSamplingMessageResponse = SamplingMessageGrpcService.CreateSamplingMessageResponse
-                    .newBuilder()
-                    .setStatusCode(SamplingMessageGrpcService.StatusCode.MESSAGE_COUNT_EXCEEDED)
-                    .build();
-        }
+        final ServiceResult serviceResult = samplingMessageService.createSamplingMessage(request.getMessageName(), request.getLifetimeInSec());
+        SamplingMessageGrpcService.CreateSamplingMessageResponse createSamplingMessageResponse = SamplingMessageGrpcService.CreateSamplingMessageResponse
+                .newBuilder()
+                .setStatusCode(fromServiceResultStatus(serviceResult.getStatus()))
+                .build();
+
         responseObserver.onNext(createSamplingMessageResponse);
         responseObserver.onCompleted();
     }
@@ -59,24 +55,12 @@ public class RpcService extends SamplingMessageGrpc.SamplingMessageImplBase {
                                      StreamObserver<SamplingMessageGrpcService.WriteSamplingMessageResponse> responseObserver) {
         log.info("writeSamplingMessage: " + request.getMessageContent());
 
-        SamplingMessageGrpcService.WriteSamplingMessageResponse writeSamplingMessageResponse;
-        try {
-            samplingMessageService.writeSamplingMessage(request.getMessageName(), request.getMessageContent());
-            writeSamplingMessageResponse = SamplingMessageGrpcService.WriteSamplingMessageResponse
-                    .newBuilder()
-                    .setStatusCode(SamplingMessageGrpcService.StatusCode.SUCCESS)
-                    .build();
-        } catch (SamplingMessageNotFoundException e) {
-            writeSamplingMessageResponse = SamplingMessageGrpcService.WriteSamplingMessageResponse
-                    .newBuilder()
-                    .setStatusCode(SamplingMessageGrpcService.StatusCode.NOT_FOUND)
-                    .build();
-        } catch (IllegalParameterException e) {
-            writeSamplingMessageResponse = SamplingMessageGrpcService.WriteSamplingMessageResponse
-                    .newBuilder()
-                    .setStatusCode(SamplingMessageGrpcService.StatusCode.ILLEGAL_PARAMETER)
-                    .build();
-        }
+        final ServiceResult serviceResult = samplingMessageService.writeSamplingMessage(request.getMessageName(), request.getMessageContent());
+        SamplingMessageGrpcService.WriteSamplingMessageResponse writeSamplingMessageResponse = SamplingMessageGrpcService.WriteSamplingMessageResponse
+                .newBuilder()
+                .setStatusCode(fromServiceResultStatus(serviceResult.getStatus()))
+                .build();
+
         responseObserver.onNext(writeSamplingMessageResponse);
         responseObserver.onCompleted();
     }
@@ -85,25 +69,11 @@ public class RpcService extends SamplingMessageGrpc.SamplingMessageImplBase {
     public void clearSamplingMessage(SamplingMessageGrpcService.ClearSamplingMessageRequest request,
                                      StreamObserver<SamplingMessageGrpcService.ClearSamplingMessageResponse> responseObserver) {
         log.info("clearSamplingMessage");
-        SamplingMessageGrpcService.ClearSamplingMessageResponse clearSamplingMessageResponse;
-
-        try {
-            samplingMessageService.clearSamplingMessage(request.getMessageName());
-            clearSamplingMessageResponse = SamplingMessageGrpcService.ClearSamplingMessageResponse
-                    .newBuilder()
-                    .setStatusCode(SamplingMessageGrpcService.StatusCode.SUCCESS)
-                    .build();
-        } catch (SamplingMessageNotFoundException e) {
-            clearSamplingMessageResponse = SamplingMessageGrpcService.ClearSamplingMessageResponse
-                    .newBuilder()
-                    .setStatusCode(SamplingMessageGrpcService.StatusCode.NOT_FOUND)
-                    .build();
-        } catch (IllegalParameterException e) {
-            clearSamplingMessageResponse = SamplingMessageGrpcService.ClearSamplingMessageResponse
-                    .newBuilder()
-                    .setStatusCode(SamplingMessageGrpcService.StatusCode.ILLEGAL_PARAMETER)
-                    .build();
-        }
+        final ServiceResult serviceResult = samplingMessageService.clearSamplingMessage(request.getMessageName());
+        SamplingMessageGrpcService.ClearSamplingMessageResponse clearSamplingMessageResponse = SamplingMessageGrpcService.ClearSamplingMessageResponse
+                .newBuilder()
+                .setStatusCode(fromServiceResultStatus(serviceResult.getStatus()))
+                .build();
 
         responseObserver.onNext(clearSamplingMessageResponse);
         responseObserver.onCompleted();
@@ -114,26 +84,21 @@ public class RpcService extends SamplingMessageGrpc.SamplingMessageImplBase {
                                     StreamObserver<SamplingMessageGrpcService.ReadSamplingMessageResponse> responseObserver) {
         log.info("readSamplingMessage: " + request.getMessageName());
 
-        SamplingMessageGrpcService.ReadSamplingMessageResponse readSamplingMessageResponse;
-
-        try {
-            final SamplingMessage samplingMessage = samplingMessageService.readSamplingMessage(request.getMessageName());
-            log.info(samplingMessage.toString());
+        final ServiceResult<SamplingMessage> samplingMessageServiceResult = samplingMessageService.readSamplingMessage(request.getMessageName());
+        final SamplingMessageGrpcService.StatusCode statusCode = fromServiceResultStatus(samplingMessageServiceResult.getStatus());
+        final SamplingMessageGrpcService.ReadSamplingMessageResponse readSamplingMessageResponse;
+        if (samplingMessageServiceResult.getResultItem().isPresent()) {
+            final SamplingMessage samplingMessage = samplingMessageServiceResult.getResultItem().get();
             readSamplingMessageResponse = SamplingMessageGrpcService.ReadSamplingMessageResponse
                     .newBuilder()
                     .setMessageContent(samplingMessage.getMessageContent())
                     .setMessageIsValid(samplingMessage.getIsValid())
-                    .setStatusCode(SamplingMessageGrpcService.StatusCode.SUCCESS)
+                    .setStatusCode(statusCode)
                     .build();
-        } catch (SamplingMessageNotFoundException e) {
+        } else {
             readSamplingMessageResponse = SamplingMessageGrpcService.ReadSamplingMessageResponse
                     .newBuilder()
-                    .setStatusCode(SamplingMessageGrpcService.StatusCode.NOT_FOUND)
-                    .build();
-        } catch (IllegalParameterException e) {
-            readSamplingMessageResponse = SamplingMessageGrpcService.ReadSamplingMessageResponse
-                    .newBuilder()
-                    .setStatusCode(SamplingMessageGrpcService.StatusCode.ILLEGAL_PARAMETER)
+                    .setStatusCode(statusCode)
                     .build();
         }
 
@@ -146,27 +111,25 @@ public class RpcService extends SamplingMessageGrpc.SamplingMessageImplBase {
                                          StreamObserver<SamplingMessageGrpcService.GetSamplingMessageStatusResponse> responseObserver) {
         log.info("getSamplingMessageStatus");
 
-        SamplingMessageGrpcService.GetSamplingMessageStatusResponse getSamplingMessageStatusResponse;
-        try {
-            final SamplingMessageStatus samplingMessageStatus = samplingMessageService.getSamplingMessageStatus(request.getMessageName());
-            getSamplingMessageStatusResponse = SamplingMessageGrpcService.GetSamplingMessageStatusResponse
+        final ServiceResult<SamplingMessageStatus> samplingMessageServiceResult = samplingMessageService.getSamplingMessageStatus(request.getMessageName());
+        final SamplingMessageGrpcService.StatusCode statusCode = fromServiceResultStatus(samplingMessageServiceResult.getStatus());
+        final SamplingMessageGrpcService.GetSamplingMessageStatusResponse readSamplingMessageResponse;
+        if (samplingMessageServiceResult.getResultItem().isPresent()) {
+            final SamplingMessageStatus samplingMessage = samplingMessageServiceResult.getResultItem().get();
+            readSamplingMessageResponse = SamplingMessageGrpcService.GetSamplingMessageStatusResponse
                     .newBuilder()
-                    .setMessageIsEmpty(samplingMessageStatus.getIsEmpty())
-                    .setMessageIsValid(samplingMessageStatus.getIsValid())
+                    .setMessageIsEmpty(samplingMessage.getIsEmpty())
+                    .setMessageIsValid(samplingMessage.getIsValid())
+                    .setStatusCode(statusCode)
                     .build();
-        } catch (SamplingMessageNotFoundException e) {
-            getSamplingMessageStatusResponse = SamplingMessageGrpcService.GetSamplingMessageStatusResponse
+        } else {
+            readSamplingMessageResponse = SamplingMessageGrpcService.GetSamplingMessageStatusResponse
                     .newBuilder()
-                    .setStatusCode(SamplingMessageGrpcService.StatusCode.NOT_FOUND)
-                    .build();
-        } catch (IllegalParameterException e) {
-            getSamplingMessageStatusResponse = SamplingMessageGrpcService.GetSamplingMessageStatusResponse
-                    .newBuilder()
-                    .setStatusCode(SamplingMessageGrpcService.StatusCode.ILLEGAL_PARAMETER)
+                    .setStatusCode(statusCode)
                     .build();
         }
 
-        responseObserver.onNext(getSamplingMessageStatusResponse);
+        responseObserver.onNext(readSamplingMessageResponse);
         responseObserver.onCompleted();
     }
 
@@ -175,25 +138,11 @@ public class RpcService extends SamplingMessageGrpc.SamplingMessageImplBase {
                                       StreamObserver<SamplingMessageGrpcService.DeleteSamplingMessageResponse> responseObserver) {
         log.info("deleteSamplingMessage");
 
-        SamplingMessageGrpcService.DeleteSamplingMessageResponse deleteSamplingMessageResponse;
-
-        try {
-            samplingMessageService.deleteSamplingMessage(request.getMessageName());
-            deleteSamplingMessageResponse = SamplingMessageGrpcService.DeleteSamplingMessageResponse
+        final ServiceResult serviceResult = samplingMessageService.deleteSamplingMessage(request.getMessageName());
+        SamplingMessageGrpcService.DeleteSamplingMessageResponse deleteSamplingMessageResponse = SamplingMessageGrpcService.DeleteSamplingMessageResponse
                     .newBuilder()
-                    .setStatusCode(SamplingMessageGrpcService.StatusCode.SUCCESS)
+                .setStatusCode(fromServiceResultStatus(serviceResult.getStatus()))
                     .build();
-        } catch (SamplingMessageNotFoundException e) {
-            deleteSamplingMessageResponse = SamplingMessageGrpcService.DeleteSamplingMessageResponse
-                    .newBuilder()
-                    .setStatusCode(SamplingMessageGrpcService.StatusCode.NOT_FOUND)
-                    .build();
-        } catch (IllegalParameterException e) {
-            deleteSamplingMessageResponse = SamplingMessageGrpcService.DeleteSamplingMessageResponse
-                    .newBuilder()
-                    .setStatusCode(SamplingMessageGrpcService.StatusCode.ILLEGAL_PARAMETER)
-                    .build();
-        }
 
         responseObserver.onNext(deleteSamplingMessageResponse);
         responseObserver.onCompleted();
