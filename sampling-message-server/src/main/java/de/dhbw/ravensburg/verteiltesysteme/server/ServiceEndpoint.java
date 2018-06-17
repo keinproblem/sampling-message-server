@@ -4,7 +4,7 @@ import de.dhbw.ravensburg.verteiltesysteme.server.persistence.DatabaseAccessObje
 import de.dhbw.ravensburg.verteiltesysteme.server.persistence.DatabaseAccessObjectImpl;
 import de.dhbw.ravensburg.verteiltesysteme.server.persistence.FakePersistence;
 import de.dhbw.ravensburg.verteiltesysteme.server.rpc.RpcService;
-import de.dhbw.ravensburg.verteiltesysteme.server.service.ContractValidator;
+import de.dhbw.ravensburg.verteiltesysteme.server.service.InputValidator;
 import de.dhbw.ravensburg.verteiltesysteme.server.service.SamplingMessageService;
 import de.dhbw.ravensburg.verteiltesysteme.server.service.SamplingMessageServiceImpl;
 import de.dhbw.ravensburg.verteiltesysteme.server.service.ServiceConfig;
@@ -35,8 +35,8 @@ public class ServiceEndpoint {
         this.serviceConfig = serviceConfig;
 
         final DatabaseAccessObject databaseAccessObject = new DatabaseAccessObjectImpl(new FakePersistence<>());
-        final ContractValidator contractValidator = new ContractValidator(this.serviceConfig);
-        final SamplingMessageService samplingMessageService = new SamplingMessageServiceImpl(databaseAccessObject, contractValidator);
+        final InputValidator inputValidator = new InputValidator(this.serviceConfig);
+        final SamplingMessageService samplingMessageService = new SamplingMessageServiceImpl(databaseAccessObject, inputValidator);
 
         final RpcService rpcService = new RpcService(samplingMessageService);
 
@@ -47,6 +47,9 @@ public class ServiceEndpoint {
                 .build();
     }
 
+    /*
+        Provide request endpoint logging interceptor
+     */
     private static ServerInterceptor socketAddressLoggingServerInterceptor() {
         return new ServerInterceptor() {
             @Override
@@ -72,6 +75,11 @@ public class ServiceEndpoint {
         }
     }
 
+    /**
+     * Block until server shutdown occurs.
+     *
+     * @throws InterruptedException
+     */
     public void awaitTermination() throws InterruptedException {
         this.server.awaitTermination();
     }

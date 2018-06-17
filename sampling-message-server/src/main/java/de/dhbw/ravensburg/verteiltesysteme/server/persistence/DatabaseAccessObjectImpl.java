@@ -11,11 +11,15 @@ import java.util.Optional;
 public class DatabaseAccessObjectImpl implements DatabaseAccessObject {
     private final FakePersistence<String, DatabaseSamplingMessage> fakePersistence;
 
+
     public DatabaseAccessObjectImpl(final @NonNull FakePersistence<String, DatabaseSamplingMessage> fakePersistence) {
         log.debug("Constructing DatabaseAccessObjectImpl");
         this.fakePersistence = fakePersistence;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public Optional<DatabaseSamplingMessage> getSamplingMessage(@NonNull final String messageName) {
         log.info(String.format("Getting DatabaseSamplingMessage with the messageName: %s.", messageName));
@@ -32,6 +36,9 @@ public class DatabaseAccessObjectImpl implements DatabaseAccessObject {
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public boolean createSamplingMessage(@NonNull final String messageName, @NonNull final DatabaseSamplingMessage databaseSamplingMessage) {
         log.info(String.format("Creating DatabaseSamplingMessage with the messageName: %s.", messageName));
@@ -45,6 +52,10 @@ public class DatabaseAccessObjectImpl implements DatabaseAccessObject {
         return false;
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public boolean writeSamplingMessageContentAndTimestamp(@NonNull final String messageName, @NonNull final String messageContent, @NonNull final Instant updateTimestamp) {
         log.info(String.format("Writing DatabaseSamplingMessage with the messageName: %s.", messageName));
 
@@ -57,6 +68,9 @@ public class DatabaseAccessObjectImpl implements DatabaseAccessObject {
         return false;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public boolean deleteSamplingMessage(@NonNull final String messageName) {
         log.info(String.format("Deleting DatabaseSamplingMessage with the messageName: %s.", messageName));
@@ -69,6 +83,9 @@ public class DatabaseAccessObjectImpl implements DatabaseAccessObject {
         return false;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public long getTotalMessageCount() {
         final long messageCount = fakePersistence.size();

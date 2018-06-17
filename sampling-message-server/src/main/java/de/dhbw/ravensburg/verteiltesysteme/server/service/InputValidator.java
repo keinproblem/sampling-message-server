@@ -12,10 +12,10 @@ import java.time.Instant;
  * Provides validation patterns for incoming transit data
  */
 @Data
-public class ContractValidator {
+public class InputValidator {
     private ServiceConfig serviceConfig;
 
-    public ContractValidator(final ServiceConfig serviceConfig) {
+    public InputValidator(final ServiceConfig serviceConfig) {
         this.serviceConfig = serviceConfig;
     }
 
