@@ -78,6 +78,7 @@ public class SamplingMessageServiceImpl implements SamplingMessageService {
         }
 
         final ServiceResult serviceResult;
+
         if (databaseAccessObject.writeSamplingMessageContentAndTimestamp(messageName, messageContent, Instant.now())) {
             serviceResult = new ServiceResult(ServiceResult.Status.SUCCESS);
         } else {
