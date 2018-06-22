@@ -195,8 +195,6 @@ public class CommandLineClient {
         log.info("getSamplingMessageStatusResponse Status Code: " + response.getStatusCode().name());
     }
 
-
-
     private void exitWithError(String errorMessage) {
         log.debug("ParsingError: ", errorMessage);
         log.error(errorMessage);

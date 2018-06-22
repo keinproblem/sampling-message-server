@@ -12,10 +12,10 @@ import java.util.Optional;
  */
 public interface DatabaseAccessObject {
     /**
-     * Gets an already existing {@see DatabaseSamplingMessage}
+     * Gets an already existing {@link DatabaseSamplingMessage}
      *
      * @param messageName the desired sampling message name
-     * @return returns a {@see java.util.Optional} eventually containing a {@see DatabaseSamplingMessage}, if there was already an existing one. An empty {@see java.util.Optional} is beeing returned, if none was existing.
+     * @return returns a {@link Optional} eventually containing a {@link DatabaseSamplingMessage}, if there was already an existing one. An empty {@link java.util.Optional} is beeing returned, if none was existing.
      */
     Optional<DatabaseSamplingMessage> getSamplingMessage(@NonNull String messageName);
 
@@ -24,7 +24,7 @@ public interface DatabaseAccessObject {
      *
      * @param messageName             the unique identifier of the object to be stored
      * @param databaseSamplingMessage the object to be stored
-     * @return true if there was no previous {@see DatabaseSamplingMessage} with the same unique identifier. false if the desired messageName is already taken.
+     * @return true if there was no previous {@link DatabaseSamplingMessage} with the same unique identifier. false if the desired messageName is already taken.
      */
     boolean createSamplingMessage(@NonNull String messageName, @NonNull DatabaseSamplingMessage databaseSamplingMessage);
 

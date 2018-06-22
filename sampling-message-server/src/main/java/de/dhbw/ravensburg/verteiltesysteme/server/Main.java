@@ -11,7 +11,7 @@ public class Main {
 
     /**
      * Application Entry Point
-     * Parsing the CLI arguments and initializing a {@see service.ServiceEndpoint}
+     * Parsing the CLI arguments and initializing a {@link ServiceEndpoint}
      *
      * @param args CLI arguments
      */

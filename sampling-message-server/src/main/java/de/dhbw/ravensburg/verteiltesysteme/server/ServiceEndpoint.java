@@ -25,7 +25,7 @@ public class ServiceEndpoint {
 
 
     /**
-     * Instantiate a ServiceEndpoint object with the given {@see service.ServiceConfig}
+     * Instantiate a ServiceEndpoint object with the given {@link ServiceConfig}
      * Prepares the gRPC server to be initialized afterwards.
      *
      * @param serviceConfig Basic service configuration
