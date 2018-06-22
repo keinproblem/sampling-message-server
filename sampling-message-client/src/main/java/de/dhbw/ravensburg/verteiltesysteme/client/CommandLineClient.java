@@ -8,6 +8,10 @@ import io.grpc.ManagedChannelBuilder;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.cli.*;
 
+/**
+ * This class is the CLI Client implementation for communications with the server.
+ * It extends the abstract {@see Client} class and parses command line parameters.
+ */
 @Slf4j
 public class CommandLineClient extends Client {
 
@@ -59,6 +63,12 @@ public class CommandLineClient extends Client {
                 .build());
     }
 
+    /**
+     * Parse the passed command line arguments to create a RPC request with the SamplingMessageGrpcService.
+     * In case a mandatory argument is missing, the program shuts down with an error message.
+     *
+     * @param args Command line arguments passed to the JAR call
+     */
     public void run(String[] args) {
         CommandLineParser commandLineParser = new DefaultParser();
         helpFormatter = new HelpFormatter();
@@ -78,7 +88,6 @@ public class CommandLineClient extends Client {
 
         ManagedChannelBuilder<?> managedChannelBuilder = ManagedChannelBuilder.forAddress(address, port).usePlaintext();
         ManagedChannel managedChannel = managedChannelBuilder.build();
-        SamplingMessageGrpc.SamplingMessageStub samplingMessageStub = SamplingMessageGrpc.newStub(managedChannel);
         SamplingMessageGrpc.SamplingMessageBlockingStub samplingMessageBlockingStub = SamplingMessageGrpc.newBlockingStub(managedChannel);
 
         if (method == 0) {
@@ -100,6 +109,19 @@ public class CommandLineClient extends Client {
         managedChannel.shutdown();
     }
 
+    /**
+     * Create an empty sampling message.
+     *
+     * Expected arguments are:
+     *    -d for the duration the message should be valid
+     *    -n for the name the message should bare
+     *
+     * If the message name is already in use, an error is returned by the server with the status code CONFLICT.
+     * A successful request returns a status code SUCCESS.
+     *
+     * @param commandLine CommandLine Object for argument extraction
+     * @param samplingMessageBlockingStub The message stub that executes the sampling message request
+     */
     private void createSamplingMessage(CommandLine commandLine, SamplingMessageGrpc.SamplingMessageBlockingStub samplingMessageBlockingStub) {
         String name = commandLine.getOptionValue("name");
         long duration;
@@ -123,6 +145,19 @@ public class CommandLineClient extends Client {
         log.info("createSamplingMessageResponse Status Code: " + response.getStatusCode().name());
     }
 
+    /**
+     * Write an existing sampling message.
+     *
+     * Expected arguments are:
+     *    -d for the duration the message should be valid
+     *    -c for the content of the message
+     *    -n for the name the message should bare
+     *
+     * If the message name is unknown the server returns a status code NOT_FOUND and SUCCESS otherwise.
+     *
+     * @param commandLine CommandLine Object for argument extraction
+     * @param samplingMessageBlockingStub The message stub that executes the sampling message request
+     */
     private void writeSamplingMessage(CommandLine commandLine, SamplingMessageGrpc.SamplingMessageBlockingStub samplingMessageBlockingStub) {
         String name = commandLine.getOptionValue("name");
         String content = commandLine.getOptionValue("content");
@@ -142,6 +177,17 @@ public class CommandLineClient extends Client {
         log.info("writeSamplingMessageResponse Status Code: " + response.getStatusCode().name());
     }
 
+    /**
+     * Clear an existing sampling message of its content. The message is also invalidated.
+     *
+     * Expected arguments are:
+     *    -n for the name of the message to be cleared
+     *
+     * If the message name is unknown the server returns a status code NOT_FOUND and SUCCESS otherwise.
+     *
+     * @param commandLine CommandLine Object for argument extraction
+     * @param samplingMessageBlockingStub The message stub that executes the sampling message request
+     */
     private void clearSamplingMessage(CommandLine commandLine, SamplingMessageGrpc.SamplingMessageBlockingStub samplingMessageBlockingStub) {
         String name = commandLine.getOptionValue("name");
         SamplingMessageGrpcService.ClearSamplingMessageRequest request =
@@ -154,6 +200,17 @@ public class CommandLineClient extends Client {
         log.info("writeSamplingMessageResponse Status Code: " + response.getStatusCode().name());
     }
 
+    /**
+     * Read an existing sampling message.
+     *
+     * Expected arguments are:
+     *    -n for the name of the message to be read
+     *
+     * If the message name is unknown the server returns a status code NOT_FOUND and SUCCESS otherwise.
+     *
+     * @param commandLine CommandLine Object for argument extraction
+     * @param samplingMessageBlockingStub The message stub that executes the sampling message request
+     */
     private void readSamplingMessage(CommandLine commandLine, SamplingMessageGrpc.SamplingMessageBlockingStub samplingMessageBlockingStub) {
         String name = commandLine.getOptionValue("name");
 
@@ -169,6 +226,12 @@ public class CommandLineClient extends Client {
         log.info("readSamplingMessageResponse Valid: " + response.getMessageIsValid());
     }
 
+    /**
+     * Read the current status of an existing sampling message.
+     *
+     * @param commandLine CommandLine Object for argument extraction
+     * @param samplingMessageBlockingStub The message stub that executes the sampling message request
+     */
     private void getSamplingMessageStatus(CommandLine commandLine, SamplingMessageGrpc.SamplingMessageBlockingStub samplingMessageBlockingStub) {
         String name = commandLine.getOptionValue("name");
 
@@ -182,6 +245,17 @@ public class CommandLineClient extends Client {
         log.info("getSamplingMessageStatusResponse Status Code: " + response.getStatusCode().name());
     }
 
+    /**
+     * Delete an existing sampling message, permanently removing it from the server storage.
+     *
+     * Expected arguments are:
+     *    -n for the name of the message to be deleted
+     *
+     * If the message name is unknown the server returns a status code NOT_FOUND and SUCCESS otherwise.
+     *
+     * @param commandLine CommandLine Object for argument extraction
+     * @param samplingMessageBlockingStub The message stub that executes the sampling message request
+     */
     private void deleteSamplingMessage(CommandLine commandLine, SamplingMessageGrpc.SamplingMessageBlockingStub samplingMessageBlockingStub) {
         String name = commandLine.getOptionValue("name");
 
@@ -196,7 +270,11 @@ public class CommandLineClient extends Client {
     }
 
 
-
+    /**
+     * Prints an error message before exiting the program with an error exit code of 1.
+     *
+     * @param errorMessage Message to be displayed on the console during the program shutdown
+     */
     private void exitWithError(String errorMessage) {
         log.debug("ParsingError: ", errorMessage);
         log.error(errorMessage);
