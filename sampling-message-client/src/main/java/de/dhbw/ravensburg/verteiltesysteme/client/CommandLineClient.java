@@ -9,7 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.cli.*;
 
 @Slf4j
-public class CommandLineClient {
+public class CommandLineClient extends Client {
 
     private Options options;
     private HelpFormatter helpFormatter;
