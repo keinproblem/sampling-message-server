@@ -8,6 +8,7 @@ Campus Friedrichshafen
 Mobile Informatik  
 Verteilte Systeme
 
-Targeting Oracle JDK 8
+Targeting JDK 8
 
-java -jar sampling-message-server-0.1-jar-with-dependencies.jar
+java -jar client.jar -h
+java -jar server.jar -h
