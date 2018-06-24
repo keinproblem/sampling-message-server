@@ -11,4 +11,5 @@ Verteilte Systeme
 Targeting JDK 8
 
 java -jar client.jar -h
+
 java -jar server.jar -h
