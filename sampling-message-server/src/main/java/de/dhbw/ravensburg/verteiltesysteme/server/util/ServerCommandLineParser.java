@@ -66,8 +66,8 @@ public class ServerCommandLineParser {
 
         final Long maxNameLength = commandLine.hasOption("name-length") ? Long.valueOf(commandLine.getOptionValue("name-length")) : ServiceConfig.DEFAULT_MAXIMUM_SAMPLING_MESSAGE_NAME_SIZE;
         final Long maxContentLength = commandLine.hasOption("content-length") ? Long.valueOf(commandLine.getOptionValue("content-length")) : ServiceConfig.DEFAULT_MAXIMUM_SAMPLING_MESSAGE_CONTENT_SIZE;
-        final Long maxMessageCount = commandLine.hasOption("content-length") ? Long.valueOf(commandLine.getOptionValue("content-length")) : ServiceConfig.DEFAULT_MAXIMUM_SAMPLING_MESSAGE_COUNT;
-        final Integer serverPort = commandLine.hasOption("content-length") ? Integer.valueOf(commandLine.getOptionValue("content-length")) : ServiceConfig.DEFAULT_SERVICE_ENDPOINT_PORT;
+        final Long maxMessageCount = commandLine.hasOption("message-count") ? Long.valueOf(commandLine.getOptionValue("message-count")) : ServiceConfig.DEFAULT_MAXIMUM_SAMPLING_MESSAGE_COUNT;
+        final Integer serverPort = commandLine.hasOption("port") ? Integer.valueOf(commandLine.getOptionValue("port")) : ServiceConfig.DEFAULT_SERVICE_ENDPOINT_PORT;
 
         return new ServiceConfig(maxNameLength, maxContentLength, maxMessageCount, serverPort);
     }
