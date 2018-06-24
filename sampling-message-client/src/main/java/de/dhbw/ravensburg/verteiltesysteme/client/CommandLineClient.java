@@ -276,7 +276,6 @@ public class CommandLineClient extends Client {
      * @param errorMessage Message to be displayed on the console during the program shutdown
      */
     private void exitWithError(String errorMessage) {
-        log.debug("ParsingError: ", errorMessage);
         log.error(errorMessage);
         helpFormatter.printHelp("sampling-message-client", options);
         System.exit(1);

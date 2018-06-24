@@ -33,6 +33,7 @@ public class ServiceEndpoint {
     public ServiceEndpoint(final ServiceConfig serviceConfig) {
         log.info("Preparing Service Endpoint");
         this.serviceConfig = serviceConfig;
+        log.info(String.format("Using following config: %s", serviceConfig.toString()));
 
         final DatabaseAccessObject databaseAccessObject = new DatabaseAccessObjectImpl(new FakePersistence<>());
         final InputValidator inputValidator = new InputValidator(this.serviceConfig);

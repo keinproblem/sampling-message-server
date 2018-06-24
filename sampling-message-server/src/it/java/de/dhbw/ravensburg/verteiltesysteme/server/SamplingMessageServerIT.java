@@ -18,10 +18,10 @@ public class SamplingMessageServerIT {
 
     final Integer testingPort = 8888;
     ServiceEndpoint serviceEndpoint;
-    final Integer maxSamplingMessageNameLength = 20;
-    final Integer maxSamplingMessageContentLength = 20;
-    final Integer maxSamplingMessageCount = 20;
-    ServiceConfig serviceConfig = new ServiceConfig(maxSamplingMessageNameLength, maxSamplingMessageContentLength, maxSamplingMessageCount, testingPort);
+    final int maxSamplingMessageNameLength = 20;
+    final int maxSamplingMessageContentLength = 20;
+    final int maxSamplingMessageCount = 20;
+    ServiceConfig serviceConfig = new ServiceConfig((long) maxSamplingMessageNameLength, (long) maxSamplingMessageContentLength, (long) maxSamplingMessageCount, testingPort);
     SamplingMessageGrpc.SamplingMessageBlockingStub samplingMessageBlockingStub;
 
     private static SamplingMessageGrpcService.CreateSamplingMessageRequest createSamplingMessageRequest(String name, long duration) {

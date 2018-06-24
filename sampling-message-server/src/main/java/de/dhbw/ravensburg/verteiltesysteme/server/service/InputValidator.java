@@ -18,14 +18,23 @@ public class InputValidator {
     }
 
     public boolean isInvalidMessageName(final String messageName) {
+        if (this.serviceConfig.isUnlimitedMessageNameSize())
+            return true;
+
         return (messageName == null || messageName.length() > this.serviceConfig.getMaximumSamplingMessageNameSize()); // messageName.isEmpty());
     }
 
     public boolean isInvalidMessageContent(final String messageContent) {
+        if (this.serviceConfig.isUnlimitedMessageContentSize())
+            return true;
+
         return (messageContent == null || messageContent.length() > this.serviceConfig.getMaximumSamplingMessageContentSize()); // messageContent.isEmpty();
     }
 
     public boolean isMessageCountExceeded(final Long totalMessageCount) {
+        if (this.serviceConfig.isUnlimitedMessageCount())
+            return true;
+
         return totalMessageCount >= serviceConfig.getMaximumSamplingMessageContentSize();
     }
 
@@ -34,7 +43,7 @@ public class InputValidator {
         return Instant.now().minus(lifetime).isBefore(creationTime);
     }
 
-    public int getCurrentSamplingMaximumMessageCount() {
+    public long getCurrentSamplingMaximumMessageCount() {
         return this.serviceConfig.getMaximumSamplingMessageCount();
     }
 }
