@@ -29,7 +29,7 @@ public class ServerCommandLineParser {
                 .longOpt("port")
                 .hasArg(true)
                 .required(false)
-                .desc("local TCP Server Port - default is 8080")
+                .desc("local TCP Server Port - default is" + ServiceConfig.DEFAULT_SERVICE_ENDPOINT_PORT)
                 .build());
 
         options.addOption(Option.builder("cl")
