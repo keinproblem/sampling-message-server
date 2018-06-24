@@ -60,12 +60,12 @@ public class Main {
      *
      * @param errorMessage Message to be displayed on the console during the program shutdown
      */
-    private static void exitWithError(String errorMessage) {
+    private static void exitWithError(final String errorMessage) {
         log.error(errorMessage);
         exitWithHelpScreen(1);
     }
 
-    private static void exitWithHelpScreen(int exitCode) {
+    private static void exitWithHelpScreen(final int exitCode) {
         new HelpFormatter().printHelp("sampling-message-server", defaultOptions());
         System.exit(exitCode);
     }
