@@ -1,7 +1,9 @@
 package de.dhbw.ravensburg.verteiltesysteme.server.util;
 
 import de.dhbw.ravensburg.verteiltesysteme.server.service.ServiceConfig;
-import org.apache.commons.cli.*;
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.Option;
+import org.apache.commons.cli.Options;
 
 /**
  * Utility class for CLI related stuff
@@ -48,15 +50,12 @@ public class ServerCommandLineParser {
     }
 
     /**
-     * Produce a {@link ServiceConfig} from a raw command line args String[]
+     * Produce a {@link ServiceConfig} from command line information
      *
-     * @param args Command lines as provided in main method
+     * @param commandLine Command line object from Apache CLI
      * @return appropriate service configuration object
-     * @throws ParseException if parsing
      */
-    public static ServiceConfig fromCliArgs(final String[] args) throws ParseException {
-        final CommandLineParser serverCommandLineParser = new DefaultParser();
-        final CommandLine commandLine = serverCommandLineParser.parse(defaultOptions(), args);
+    public static ServiceConfig fromCliArgs(final CommandLine commandLine) {
 
         final Long maxNameLength = commandLine.hasOption("name-length") ? Long.valueOf(commandLine.getOptionValue("name-length")) : ServiceConfig.DEFAULT_MAXIMUM_SAMPLING_MESSAGE_NAME_SIZE;
         final Long maxContentLength = commandLine.hasOption("content-length") ? Long.valueOf(commandLine.getOptionValue("content-length")) : ServiceConfig.DEFAULT_MAXIMUM_SAMPLING_MESSAGE_CONTENT_SIZE;

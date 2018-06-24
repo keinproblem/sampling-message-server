@@ -3,8 +3,9 @@ package de.dhbw.ravensburg.verteiltesysteme.server;
 import de.dhbw.ravensburg.verteiltesysteme.server.service.ServiceConfig;
 import de.dhbw.ravensburg.verteiltesysteme.server.util.ServerCommandLineParser;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.cli.HelpFormatter;
-import org.apache.commons.cli.ParseException;
+import org.apache.commons.cli.*;
+
+import static de.dhbw.ravensburg.verteiltesysteme.server.util.ServerCommandLineParser.defaultOptions;
 
 /**
  * Class providing the application entry point.
@@ -21,17 +22,19 @@ public class Main {
     public static void main(String[] args) {
         final ServiceConfig serviceConfig;
         try {
-            serviceConfig = ServerCommandLineParser.fromCliArgs(args);
+            final CommandLineParser serverCommandLineParser = new DefaultParser();
+            final CommandLine commandLine = serverCommandLineParser.parse(defaultOptions(), args);
+            if (commandLine.hasOption("help")) {
+                exitWithHelpScreen();
+            }
+            serviceConfig = ServerCommandLineParser.fromCliArgs(commandLine);
         } catch (ParseException e) {
             e.printStackTrace();
             log.debug("ParsingError: ", e.getMessage());
-            log.error(e.getMessage());
-            new HelpFormatter().printHelp("sampling-message-client", ServerCommandLineParser.defaultOptions());
-            System.exit(1);
+            exitWithError(e.getMessage());
             //dead code to satisfy for debugger
             return;
         }
-        //final ServiceConfig serviceConfig = new ServiceConfig(255, 32, 32, 8080);
 
         final ServiceEndpoint serviceEndpoint = new ServiceEndpoint(serviceConfig);
 
@@ -50,5 +53,20 @@ public class Main {
         } catch (InterruptedException e) {
             log.error("Interrupted while running: ", e);
         }
+    }
+
+    /**
+     * Prints an error message before exiting the program with an error exit code of 1.
+     *
+     * @param errorMessage Message to be displayed on the console during the program shutdown
+     */
+    private static void exitWithError(String errorMessage) {
+        log.error(errorMessage);
+        exitWithHelpScreen();
+    }
+
+    private static void exitWithHelpScreen() {
+        new HelpFormatter().printHelp("sampling-message-server", defaultOptions());
+        System.exit(1);
     }
 }

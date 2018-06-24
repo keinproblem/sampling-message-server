@@ -22,6 +22,13 @@ public class CommandLineClient extends Client {
     CommandLineClient() {
         options = new Options();
 
+        options.addOption(Option.builder("h")
+                .longOpt("help")
+                .hasArg(false)
+                .required(false)
+                .desc("print help")
+                .build());
+
         options.addOption(Option.builder("n")
                 .longOpt("name")
                 .hasArg(true)
@@ -79,6 +86,10 @@ public class CommandLineClient extends Client {
         } catch (ParseException e) {
             exitWithError(e.getMessage());
             return;
+        }
+
+        if (commandLine.hasOption("help")) {
+            exitWithHelpScreen();
         }
 
         final String address = commandLine.getOptionValue("address");
@@ -277,6 +288,10 @@ public class CommandLineClient extends Client {
      */
     private void exitWithError(String errorMessage) {
         log.error(errorMessage);
+        this.exitWithHelpScreen();
+    }
+
+    private void exitWithHelpScreen() {
         helpFormatter.printHelp("sampling-message-client", options);
         System.exit(1);
     }
