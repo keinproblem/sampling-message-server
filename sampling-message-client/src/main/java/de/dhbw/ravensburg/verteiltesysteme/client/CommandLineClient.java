@@ -214,7 +214,7 @@ public class CommandLineClient extends Client {
         log.info("clearing sampling message " + request.getMessageName());
 
         SamplingMessageGrpcService.ClearSamplingMessageResponse response = samplingMessageBlockingStub.clearSamplingMessage(request);
-        log.info("writeSamplingMessageResponse Status Code: " + response.getStatusCode().name());
+        log.info("clearSamplingMessage Status Code: " + response.getStatusCode().name());
     }
 
     /**
@@ -283,7 +283,7 @@ public class CommandLineClient extends Client {
         log.info("deleting status code for message " + request.getMessageName());
 
         SamplingMessageGrpcService.DeleteSamplingMessageResponse response = samplingMessageBlockingStub.deleteSamplingMessage(request);
-        log.info("getSamplingMessageStatusResponse Status Code: " + response.getStatusCode().name());
+        log.info("deleteSamplingMessage Status Code: " + response.getStatusCode().name());
     }
 
 
