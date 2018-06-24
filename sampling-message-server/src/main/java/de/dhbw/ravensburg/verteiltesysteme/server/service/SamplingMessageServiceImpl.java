@@ -31,7 +31,7 @@ public class SamplingMessageServiceImpl implements SamplingMessageService {
 
         if (inputValidator.isInvalidMessageName(messageName)) {
             log.info(String.format("Invalid messageName provided: %s", messageName));
-            return new ServiceResult(ServiceResult.Status.ILLEGAL_PARAMETER);
+            return new ServiceResult(ServiceResult.Status.ILLEGAL_MESSAGE_NAME_LENGTH);
         }
 
         final long totalMessageCount = databaseAccessObject.getTotalMessageCount();
@@ -70,11 +70,11 @@ public class SamplingMessageServiceImpl implements SamplingMessageService {
 
         if (inputValidator.isInvalidMessageName(messageName)) {
             log.info(String.format("Invalid messageName provided: %s", messageName));
-            return new ServiceResult(ServiceResult.Status.ILLEGAL_PARAMETER);
+            return new ServiceResult(ServiceResult.Status.ILLEGAL_MESSAGE_NAME_LENGTH);
         }
         if (inputValidator.isInvalidMessageContent(messageContent)) {
             log.info(String.format("Invalid messageContent provided: %s", messageContent));
-            return new ServiceResult(ServiceResult.Status.ILLEGAL_PARAMETER);
+            return new ServiceResult(ServiceResult.Status.ILLEGAL_MESSAGE_CONTENT_LENGTH);
         }
 
         final ServiceResult serviceResult;
@@ -100,7 +100,7 @@ public class SamplingMessageServiceImpl implements SamplingMessageService {
 
         if (inputValidator.isInvalidMessageName(messageName)) {
             log.info(String.format("Invalid messageName provided: %s", messageName));
-            return new ServiceResult(ServiceResult.Status.ILLEGAL_PARAMETER);
+            return new ServiceResult(ServiceResult.Status.ILLEGAL_MESSAGE_NAME_LENGTH);
         }
 
         final ServiceResult serviceResult;
@@ -129,7 +129,7 @@ public class SamplingMessageServiceImpl implements SamplingMessageService {
 
         if (inputValidator.isInvalidMessageName(messageName)) {
             log.info(String.format("Invalid messageName provided: %s", messageName));
-            return new ServiceResult<>(Optional.empty(), ServiceResult.Status.ILLEGAL_PARAMETER);
+            return new ServiceResult<>(Optional.empty(), ServiceResult.Status.ILLEGAL_MESSAGE_NAME_LENGTH);
         }
 
         final ServiceResult<SamplingMessage> serviceResult;
@@ -160,7 +160,7 @@ public class SamplingMessageServiceImpl implements SamplingMessageService {
 
         if (inputValidator.isInvalidMessageName(messageName)) {
             log.info(String.format("Invalid messageName provided: %s", messageName));
-            return new ServiceResult<>(Optional.empty(), ServiceResult.Status.ILLEGAL_PARAMETER);
+            return new ServiceResult<>(Optional.empty(), ServiceResult.Status.ILLEGAL_MESSAGE_NAME_LENGTH);
         }
 
         final ServiceResult<SamplingMessageStatus> serviceResult;
@@ -192,7 +192,7 @@ public class SamplingMessageServiceImpl implements SamplingMessageService {
 
         if (inputValidator.isInvalidMessageName(messageName)) {
             log.info(String.format("Invalid messageName provided: %s", messageName));
-            return new ServiceResult<>(Optional.empty(), ServiceResult.Status.ILLEGAL_PARAMETER);
+            return new ServiceResult<>(Optional.empty(), ServiceResult.Status.ILLEGAL_MESSAGE_NAME_LENGTH);
         }
         final ServiceResult serviceResult;
         if (databaseAccessObject.deleteSamplingMessage(messageName)) {

@@ -40,8 +40,10 @@ public class RpcService extends SamplingMessageGrpc.SamplingMessageImplBase {
                 return SamplingMessageGrpcService.StatusCode.NOT_FOUND;
             case ALREADY_EXISTS:
                 return SamplingMessageGrpcService.StatusCode.CONFLICT;
-            case ILLEGAL_PARAMETER:
-                return SamplingMessageGrpcService.StatusCode.ILLEGAL_PARAMETER;
+            case ILLEGAL_MESSAGE_NAME_LENGTH:
+                return SamplingMessageGrpcService.StatusCode.ILLEGAL_MESSAGE_NAME_LENGTH;
+            case ILLEGAL_MESSAGE_CONTENT_LENGTH:
+                return SamplingMessageGrpcService.StatusCode.ILLEGAL_MESSAGE_CONTENT_LENGTH;
             case MSG_COUNT_EXCEEDED:
                 return SamplingMessageGrpcService.StatusCode.MESSAGE_COUNT_EXCEEDED;
             default:

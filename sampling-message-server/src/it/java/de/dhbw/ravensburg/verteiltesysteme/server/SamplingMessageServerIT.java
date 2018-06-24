@@ -286,7 +286,7 @@ public class SamplingMessageServerIT {
         final String tooLongMsgName = String.join("", Collections.nCopies(maxSamplingMessageNameLength + 1, "x"));
         SamplingMessageGrpcService.CreateSamplingMessageRequest createSamplingMessageRequest = createSamplingMessageRequest(tooLongMsgName, 120);
         SamplingMessageGrpcService.CreateSamplingMessageResponse createSamplingMessageResponse = this.samplingMessageBlockingStub.createSamplingMessage(createSamplingMessageRequest);
-        Assert.assertEquals(createSamplingMessageResponse.getStatusCode(), SamplingMessageGrpcService.StatusCode.ILLEGAL_PARAMETER);
+        Assert.assertEquals(createSamplingMessageResponse.getStatusCode(), SamplingMessageGrpcService.StatusCode.ILLEGAL_MESSAGE_NAME_LENGTH);
     }
 
     @Test
@@ -294,7 +294,7 @@ public class SamplingMessageServerIT {
         final String tooLongMsgName = String.join("", Collections.nCopies(maxSamplingMessageNameLength + 1, "x"));
         SamplingMessageGrpcService.GetSamplingMessageStatusRequest getSamplingMessageStatusRequest = getSamplingMessageStatusRequest(tooLongMsgName);
         SamplingMessageGrpcService.GetSamplingMessageStatusResponse getSamplingMessageStatusResponse = this.samplingMessageBlockingStub.getSamplingMessageStatus(getSamplingMessageStatusRequest);
-        Assert.assertEquals(getSamplingMessageStatusResponse.getStatusCode(), SamplingMessageGrpcService.StatusCode.ILLEGAL_PARAMETER);
+        Assert.assertEquals(getSamplingMessageStatusResponse.getStatusCode(), SamplingMessageGrpcService.StatusCode.ILLEGAL_MESSAGE_NAME_LENGTH);
         Assert.assertFalse(getSamplingMessageStatusResponse.getMessageIsEmpty());
         Assert.assertFalse(getSamplingMessageStatusResponse.getMessageIsValid());
     }
@@ -304,7 +304,7 @@ public class SamplingMessageServerIT {
         final String tooLongMsgName = String.join("", Collections.nCopies(maxSamplingMessageNameLength + 1, "x"));
         SamplingMessageGrpcService.ReadSamplingMessageRequest readSamplingMessageRequest = readSamplingMessageRequest(tooLongMsgName);
         SamplingMessageGrpcService.ReadSamplingMessageResponse readSamplingMessageResponse = this.samplingMessageBlockingStub.readSamplingMessage(readSamplingMessageRequest);
-        Assert.assertEquals(readSamplingMessageResponse.getStatusCode(), SamplingMessageGrpcService.StatusCode.ILLEGAL_PARAMETER);
+        Assert.assertEquals(readSamplingMessageResponse.getStatusCode(), SamplingMessageGrpcService.StatusCode.ILLEGAL_MESSAGE_NAME_LENGTH);
         Assert.assertFalse(readSamplingMessageResponse.getMessageIsValid());
     }
 
@@ -313,7 +313,7 @@ public class SamplingMessageServerIT {
         final String tooLongMsgName = String.join("", Collections.nCopies(maxSamplingMessageNameLength + 1, "x"));
         SamplingMessageGrpcService.ClearSamplingMessageRequest clearSamplingMessageRequest = clearSamplingMessageRequest(tooLongMsgName);
         SamplingMessageGrpcService.ClearSamplingMessageResponse clearSamplingMessageResponse = this.samplingMessageBlockingStub.clearSamplingMessage(clearSamplingMessageRequest);
-        Assert.assertEquals(clearSamplingMessageResponse.getStatusCode(), SamplingMessageGrpcService.StatusCode.ILLEGAL_PARAMETER);
+        Assert.assertEquals(clearSamplingMessageResponse.getStatusCode(), SamplingMessageGrpcService.StatusCode.ILLEGAL_MESSAGE_NAME_LENGTH);
     }
 
     @Test
@@ -322,7 +322,7 @@ public class SamplingMessageServerIT {
         final String msgContent = "random";
         SamplingMessageGrpcService.WriteSamplingMessageRequest writeSamplingMessageRequest = writeSamplingMessageRequest(tooLongMsgName, msgContent);
         SamplingMessageGrpcService.WriteSamplingMessageResponse writeSamplingMessageResponse = this.samplingMessageBlockingStub.writeSamplingMessage(writeSamplingMessageRequest);
-        Assert.assertEquals(writeSamplingMessageResponse.getStatusCode(), SamplingMessageGrpcService.StatusCode.ILLEGAL_PARAMETER);
+        Assert.assertEquals(writeSamplingMessageResponse.getStatusCode(), SamplingMessageGrpcService.StatusCode.ILLEGAL_MESSAGE_NAME_LENGTH);
     }
 
     @Test
@@ -330,7 +330,7 @@ public class SamplingMessageServerIT {
         final String tooLongMsgName = String.join("", Collections.nCopies(maxSamplingMessageNameLength + 1, "x"));
         SamplingMessageGrpcService.DeleteSamplingMessageRequest deleteSamplingMessageRequest = deleteSamplingMessageRequest(tooLongMsgName);
         SamplingMessageGrpcService.DeleteSamplingMessageResponse deleteSamplingMessageResponse = this.samplingMessageBlockingStub.deleteSamplingMessage(deleteSamplingMessageRequest);
-        Assert.assertEquals(deleteSamplingMessageResponse.getStatusCode(), SamplingMessageGrpcService.StatusCode.ILLEGAL_PARAMETER);
+        Assert.assertEquals(deleteSamplingMessageResponse.getStatusCode(), SamplingMessageGrpcService.StatusCode.ILLEGAL_MESSAGE_NAME_LENGTH);
     }
 
 
@@ -345,7 +345,7 @@ public class SamplingMessageServerIT {
 
         SamplingMessageGrpcService.WriteSamplingMessageRequest writeSamplingMessageRequest = writeSamplingMessageRequest(msgName, tooLongMsgContent);
         SamplingMessageGrpcService.WriteSamplingMessageResponse writeSamplingMessageResponse = this.samplingMessageBlockingStub.writeSamplingMessage(writeSamplingMessageRequest);
-        Assert.assertEquals(writeSamplingMessageResponse.getStatusCode(), SamplingMessageGrpcService.StatusCode.ILLEGAL_PARAMETER);
+        Assert.assertEquals(writeSamplingMessageResponse.getStatusCode(), SamplingMessageGrpcService.StatusCode.ILLEGAL_MESSAGE_CONTENT_LENGTH);
 
     }
 
