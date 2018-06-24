@@ -19,21 +19,21 @@ public class InputValidator {
 
     public boolean isInvalidMessageName(final String messageName) {
         if (this.serviceConfig.isUnlimitedMessageNameSize())
-            return true;
+            return false;
 
         return (messageName == null || messageName.length() > this.serviceConfig.getMaximumSamplingMessageNameSize()); // messageName.isEmpty());
     }
 
     public boolean isInvalidMessageContent(final String messageContent) {
         if (this.serviceConfig.isUnlimitedMessageContentSize())
-            return true;
+            return false;
 
         return (messageContent == null || messageContent.length() > this.serviceConfig.getMaximumSamplingMessageContentSize()); // messageContent.isEmpty();
     }
 
     public boolean isMessageCountExceeded(final Long totalMessageCount) {
         if (this.serviceConfig.isUnlimitedMessageCount())
-            return true;
+            return false;
 
         return totalMessageCount >= serviceConfig.getMaximumSamplingMessageContentSize();
     }

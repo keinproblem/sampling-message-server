@@ -1,0 +1,8 @@
+de.dhbw.ravensburg.verteiltesysteme.client
+de.dhbw.ravensburg.verteiltesysteme.server
+de.dhbw.ravensburg.verteiltesysteme.server.persistence
+de.dhbw.ravensburg.verteiltesysteme.server.persistence.model
+de.dhbw.ravensburg.verteiltesysteme.server.rpc
+de.dhbw.ravensburg.verteiltesysteme.server.service
+de.dhbw.ravensburg.verteiltesysteme.server.service.model
+de.dhbw.ravensburg.verteiltesysteme.server.util

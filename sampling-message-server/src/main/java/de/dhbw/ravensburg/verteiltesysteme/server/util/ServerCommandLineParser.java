@@ -18,6 +18,13 @@ public class ServerCommandLineParser {
     public static Options defaultOptions() {
         final Options options = new Options();
 
+        options.addOption(Option.builder("h")
+                .longOpt("help")
+                .hasArg(false)
+                .required(false)
+                .desc("print help")
+                .build());
+
         options.addOption(Option.builder("p")
                 .longOpt("port")
                 .hasArg(true)

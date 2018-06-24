@@ -67,6 +67,6 @@ public class Main {
 
     private static void exitWithHelpScreen() {
         new HelpFormatter().printHelp("sampling-message-server", defaultOptions());
-        System.exit(1);
+        System.exit(0);
     }
 }

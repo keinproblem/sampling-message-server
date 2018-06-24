@@ -10,7 +10,7 @@ import org.apache.commons.cli.*;
 
 /**
  * This class is the CLI Client implementation for communications with the server.
- * It extends the abstract {@see Client} class and parses command line parameters.
+ * It extends the abstract {@link Client} class and parses command line parameters.
  */
 @Slf4j
 public class CommandLineClient extends Client {
@@ -293,6 +293,6 @@ public class CommandLineClient extends Client {
 
     private void exitWithHelpScreen() {
         helpFormatter.printHelp("sampling-message-client", options);
-        System.exit(1);
+        System.exit(0);
     }
 }

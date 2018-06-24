@@ -15,7 +15,7 @@ public interface SamplingMessageService {
      *
      * @param messageName   The unique identifier of the SamplingMessage to be created.
      * @param lifetimeInSec The lifetime of the SamplingMessage to be created.
-     * @return {@link ServiceResult} represents the result of the high-level operation.
+     * @return represents the result of the high-level operation.
      */
     ServiceResult createSamplingMessage(String messageName, Long lifetimeInSec);
 
@@ -25,7 +25,7 @@ public interface SamplingMessageService {
      *
      * @param messageName The unique identifier of an already existing SamplingMessage.
      * @param messageContent The new SamplingMessage's content.
-     * @return {@link ServiceResult} represents the result of the high-level operation.
+     * @return represents the result of the high-level operation.
      */
     ServiceResult writeSamplingMessage(String messageName, String messageContent);
 
@@ -34,7 +34,7 @@ public interface SamplingMessageService {
      * This will invalidate the SamplingMessage. validity = now + 0
      *
      * @param messageName The unique identifier of an already existing SamplingMessage.
-     * @return {@link ServiceResult} represents the result of the high-level operation.
+     * @return represents the result of the high-level operation.
      */
     ServiceResult clearSamplingMessage(String messageName);
 
@@ -42,7 +42,7 @@ public interface SamplingMessageService {
      * Read an already existing SamplingMessage.
      *
      * @param messageName The unique identifier of an already existing SamplingMessage.
-     * @return {@link ServiceResult<SamplingMessage>} represents the result of the high-level operation.
+     * @return represents the result of the high-level operation.
      */
     ServiceResult<SamplingMessage> readSamplingMessage(String messageName);
 
@@ -50,7 +50,7 @@ public interface SamplingMessageService {
      * Get the SamplingMessageStatus of an already existing SamplingMessage.
      *
      * @param messageName The unique identifier of an already existing SamplingMessage.
-     * @return {@link ServiceResult<SamplingMessageStatus>} represents the result of the high-level operation.
+     * @return represents the result of the high-level operation.
      */
     ServiceResult<SamplingMessageStatus> getSamplingMessageStatus(String messageName);
 
@@ -59,7 +59,7 @@ public interface SamplingMessageService {
      * This will free the unique identifier for re-use.
      *
      * @param messageName The unique identifier of an already existing SamplingMessage to be deleted.
-     * @return {@link ServiceResult} represents the result of the high-level operation.
+     * @return represents the result of the high-level operation.
      */
     ServiceResult deleteSamplingMessage(String messageName);
 }
