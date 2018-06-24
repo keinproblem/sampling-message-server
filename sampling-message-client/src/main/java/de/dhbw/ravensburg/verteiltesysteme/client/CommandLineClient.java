@@ -5,6 +5,7 @@ import de.dhbw.ravensburg.verteiltesysteme.de.dhbw.ravensburg.verteiltesysteme.r
 import de.dhbw.ravensburg.verteiltesysteme.de.dhbw.ravensburg.verteiltesysteme.rpc.SamplingMessageGrpcService;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
+import io.grpc.StatusRuntimeException;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.cli.*;
 
@@ -89,7 +90,7 @@ public class CommandLineClient extends Client {
         }
 
         if (commandLine.hasOption("help")) {
-            exitWithHelpScreen();
+            exitWithHelpScreen(0);
         }
 
         final String address = commandLine.getOptionValue("address");
@@ -101,23 +102,28 @@ public class CommandLineClient extends Client {
         ManagedChannel managedChannel = managedChannelBuilder.build();
         SamplingMessageGrpc.SamplingMessageBlockingStub samplingMessageBlockingStub = SamplingMessageGrpc.newBlockingStub(managedChannel);
 
-        if (method == 0) {
-            createSamplingMessage(commandLine, samplingMessageBlockingStub);
-        } else if (method == 1) {
-            writeSamplingMessage(commandLine, samplingMessageBlockingStub);
-        } else if (method == 2) {
-            clearSamplingMessage(commandLine, samplingMessageBlockingStub);
-        } else if (method == 3) {
-            readSamplingMessage(commandLine, samplingMessageBlockingStub);
-        } else if (method == 4) {
-            getSamplingMessageStatus(commandLine, samplingMessageBlockingStub);
-        } else if (method == 5) {
-            deleteSamplingMessage(commandLine, samplingMessageBlockingStub);
-        } else {
-            exitWithError("Unknown method: " + method);
+        try {
+            if (method == 0) {
+                createSamplingMessage(commandLine, samplingMessageBlockingStub);
+            } else if (method == 1) {
+                writeSamplingMessage(commandLine, samplingMessageBlockingStub);
+            } else if (method == 2) {
+                clearSamplingMessage(commandLine, samplingMessageBlockingStub);
+            } else if (method == 3) {
+                readSamplingMessage(commandLine, samplingMessageBlockingStub);
+            } else if (method == 4) {
+                getSamplingMessageStatus(commandLine, samplingMessageBlockingStub);
+            } else if (method == 5) {
+                deleteSamplingMessage(commandLine, samplingMessageBlockingStub);
+            } else {
+                exitWithError("Unknown method: " + method);
+            }
+        } catch (StatusRuntimeException e) {
+            exitWithError("Server not reachable");
         }
-
-        managedChannel.shutdown();
+        finally {
+            managedChannel.shutdown();
+        }
     }
 
     /**
@@ -288,11 +294,11 @@ public class CommandLineClient extends Client {
      */
     private void exitWithError(String errorMessage) {
         log.error(errorMessage);
-        this.exitWithHelpScreen();
+        this.exitWithHelpScreen(1);
     }
 
-    private void exitWithHelpScreen() {
+    private void exitWithHelpScreen(int exitCode) {
         helpFormatter.printHelp("sampling-message-client", options);
-        System.exit(0);
+        System.exit(exitCode);
     }
 }

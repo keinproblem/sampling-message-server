@@ -25,7 +25,7 @@ public class Main {
             final CommandLineParser serverCommandLineParser = new DefaultParser();
             final CommandLine commandLine = serverCommandLineParser.parse(defaultOptions(), args);
             if (commandLine.hasOption("help")) {
-                exitWithHelpScreen();
+                exitWithHelpScreen(0);
             }
             serviceConfig = ServerCommandLineParser.fromCliArgs(commandLine);
         } catch (ParseException e) {
@@ -62,11 +62,11 @@ public class Main {
      */
     private static void exitWithError(String errorMessage) {
         log.error(errorMessage);
-        exitWithHelpScreen();
+        exitWithHelpScreen(1);
     }
 
-    private static void exitWithHelpScreen() {
+    private static void exitWithHelpScreen(int exitCode) {
         new HelpFormatter().printHelp("sampling-message-server", defaultOptions());
-        System.exit(0);
+        System.exit(exitCode);
     }
 }
