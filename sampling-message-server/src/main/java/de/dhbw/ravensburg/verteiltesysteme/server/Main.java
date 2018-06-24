@@ -61,7 +61,7 @@ public class Main {
      * @param errorMessage Message to be displayed on the console during the program shutdown
      */
     private static void exitWithError(final String errorMessage) {
-        log.error(errorMessage);
+        System.out.println(errorMessage);
         exitWithHelpScreen(1);
     }
 
