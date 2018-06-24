@@ -1,6 +1,7 @@
 package de.dhbw.ravensburg.verteiltesysteme.server.service;
 
 import lombok.NonNull;
+import lombok.extern.slf4j.Slf4j;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -10,6 +11,7 @@ import java.time.Instant;
  * Utilizes ServiceConfig
  * Provides validation patterns for incoming transit data
  */
+@Slf4j
 public class InputValidator {
     private ServiceConfig serviceConfig;
 
@@ -40,7 +42,13 @@ public class InputValidator {
 
     public boolean isValid(@NonNull final Instant creationTime, @NonNull final Duration lifetime) {
         //TODO; prevent overflow
-        return Instant.now().minus(lifetime).isBefore(creationTime);
+        try {
+            return Instant.now().minus(lifetime).isBefore(creationTime);
+        } catch (Exception e) {
+            log.error("Error while calculating validity: ", e);
+            //return false in default case
+            return false;
+        }
     }
 
     public long getCurrentSamplingMaximumMessageCount() {
